@@ -1,0 +1,5 @@
+.sass-cache
+*.swp
+.DS_Store
+www/gallery/photography/*
+built

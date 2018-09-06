@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+
+# Exit if any subcommand fails.
+set -e
+
+echo "Started deploying"
+jekyll build -s www -d built
+rsync -avzP built/ gce-i1:~/sachin.rudraraju.xyz
+ssh gce-i1 "sudo systemctl restart nginx"
+echo "Deployed Successfully!"
+
+exit 0
+
