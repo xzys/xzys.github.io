@@ -40,7 +40,12 @@ fetch("/projects.json").then(r => r.json()).then(data => {
   const projects = document.getElementById('project-list');
   data.map(p => {
     const el = document.createElement('li');
-    el.innerHTML = '<a href="'+p.link+'" '+(p.link[0] === '/' ? '' : 'target="_blank"')+'><div class="title">'+p.title+'</div><p class="desc">'+p.desc+'</p><div class="pos">'+p.alt+'</div></a>';
+    el.innerHTML = (
+      '<a href="'+p.link+'" '+(p.link[0] === '/' ? '' : 'target="_blank"')+'>'+
+        '<div class="title">'+p.title+'</div>'+
+        '<p class="desc">'+p.desc+'</p>'+
+        '<div class="pos">'+p.alt+'</div>'+
+      '</a>');
     projects.appendChild(el);
   });
 });

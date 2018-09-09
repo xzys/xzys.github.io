@@ -1,3 +1,0 @@
-#!/bin/sh
-sass --watch --style=expanded www:www &
-jekyll serve -s www -d built

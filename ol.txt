@@ -1,0 +1,4 @@
++portfolio
+  make text bigger, lighter on highlight
+  add devlogs link
+  fix logo 

@@ -1,0 +1,563 @@
+$primary: rgba(255,255,255,1)
+$secondary: rgba(255,255,255,0.4)
+$tertiary: rgba(255,255,255,0.6)
+$trans: rgba(255,255,255,0)
+$bg: #202025
+
+body
+  padding: 2em
+  position: fixed
+  top: 0
+  left: 0
+  margin: 0
+  transition: background 200ms
+  background: $bg
+  color: $primary
+  width: calc(100% - 4em)
+  height: calc(100% - 4em)
+  overflow: hidden
+  font-weight: 400
+  font-family: 'Source Sans Pro', monospace
+  letter-spacing: 0.05em
+
+pre
+  font-size: 0.6em
+  opacity: 0.3
+
+@keyframes dash
+  70%
+    stroke-dashoffset: 0
+    fill: rgba(255,255,255,0)
+  99%
+    stroke-dashoffset: 0
+    stroke: #fff
+    fill: rgba(255,255,255,1)
+  100%
+    stroke-dashoffset: 0
+    fill: rgba(255,255,255,1)
+    stroke: rgba(0,0,0,0)
+
+polygon
+  fill: $trans
+  stroke-dasharray: 1500
+  stroke-dashoffset: 1500
+  stroke: #fff
+  animation: dash 2000ms linear forwards
+
+svg.rect
+  width: 250px
+  height: 500px
+  position: absolute
+  top: 50%
+  left: 50%
+  transform: translate(-50%, -50%)
+  display: block
+
+svg.diamond
+  width: 500px
+  height: 500px
+  position: absolute
+  top: 50%
+  left: 50%
+  transform: translate(-50%, -50%)
+  display: block
+
+@keyframes xyz
+  to
+    opacity: 1
+
+@keyframes profile
+  to
+    opacity: 1
+    transform: translate(-44%, 0%)
+
+
+.center
+  &.profile
+    .profile, .diamond
+      display: initial
+  &.logo
+    .logo, .rect
+      display: initial
+  .diamond, .rect
+    display: none
+
+  .profile, .logo
+    height: 500px
+    position: absolute
+    top: 50%
+    left: 50%
+    transform: translate(-50%, -50%)
+    display: none
+
+  .logo
+    width: 250px
+
+    img
+      width: 100px
+      position: absolute
+      left: 50%
+      top: 50%
+      display: block
+      transform: translate(-50%, -50%)
+      opacity: 0
+
+    img[src="/images/xyz1.svg"]
+      animation: xyz 1000ms ease-out forwards
+      animation-delay: 1500ms
+      -webkit-backface-visibility: hidden
+
+    img[src="/images/xyz2.svg"]
+      transition: opacity 500ms
+      -webkit-backface-visibility: hidden
+
+    &:hover
+      img[src="/images/xyz2.svg"]
+        opacity: 1
+
+
+  .profile
+    width: 500px
+    clip-path: polygon(250px 0px, 500px 250px, 250px 500px, 0px 250px)
+
+    img[src="/images/profile.png"]
+      width: 430px
+      position: absolute
+      bottom: 0
+      left: 50%
+      opacity: 0
+      display: block
+      transform: translate(-35%, 0%)
+      animation: profile 1000ms ease-out forwards
+      animation-delay: 1500ms
+      -webkit-backface-visibility: hidden
+
+.center  
+  display: initial
+
+pre
+  display: none
+
+@keyframes blink
+  0% 
+    opacity: 0
+  1% 
+    opacity: 1
+  2% 
+    opacity: 0
+  10% 
+    opacity: 0
+  11% 
+    opacity: 1
+  12% 
+    opacity: 0
+  15% 
+    opacity: 0
+  16% 
+    opacity: 1
+  17% 
+    opacity: 0
+  18% 
+    opacity: 1
+  100% 
+    opacity: 1
+
+@keyframes blinkLink
+  0% 
+    opacity: 0
+  1% 
+    opacity: 1
+  2% 
+    opacity: 0
+  5% 
+    opacity: 0
+  6% 
+    opacity: 1
+  7% 
+    opacity: 0
+  8% 
+    opacity: 1
+  100% 
+    opacity: 1
+
+.container
+  width: 100%
+  height: 100%
+  position: relative
+
+@keyframes fade
+  to
+    opacity: 1
+    transform: translateX(0%)
+
+.home, .gallery, .projects
+  ul
+    list-style: none
+    font-size: 0.7em 
+
+  ul, ol
+    padding: 0
+    margin: 0
+    li
+      margin-bottom: 0.4em
+      animation: fade 500ms ease-out forwards
+
+      &:nth-child(1)
+        animation-delay: 500ms
+      &:nth-child(2)
+        animation-delay: 600ms
+      &:nth-child(3)
+        animation-delay: 700ms
+      &:nth-child(4)
+        animation-delay: 800ms
+      &:nth-child(5)
+        animation-delay: 900ms
+      &:nth-child(6)
+        animation-delay: 1000ms
+
+a
+  cursor: pointer
+  text-decoration: none
+  &:hover
+    animation: blinkLink 4000ms step-end forwards
+
+.label
+  text-transform: uppercase
+  letter-spacing: 0.15em
+  font-weight: 200
+
+.name
+  position: absolute
+  bottom: 0
+  left: 0
+  font-size: 1.5em
+  text-transform: uppercase
+  animation: blink 4000ms step-end forwards
+  display: block
+
+.links
+  position: absolute
+  top: 0
+  right: 0
+  display: block
+
+  .label
+    opacity: 0
+    font-style: italic
+    transform: rotate(90deg) translateX(100%)
+    transform-origin: top right
+    animation: blink 4000ms step-end forwards
+    animation-delay: 500ms
+    display: block
+
+  ul
+    position: absolute
+    top: 0
+    right: 0
+    margin-top: -0.2em
+    text-align: right
+    padding-right: 28px
+
+    li
+      opacity: 0
+      text-transform: uppercase
+      transform: translateX(2em)
+      display: block
+
+@keyframes background
+  from
+    opacity: 0
+  to
+    opacity: 1
+
+.home
+  &:before
+    content: ""
+    opacity: 0
+    position: fixed
+    top: 0
+    left: 0
+    width: 100%
+    height: 100%
+    background: radial-gradient(50vw at calc(50% - 10vw) calc(50% - 10vw), #222222 0%, $trans 100%)
+    animation: background 1000ms linear forwards
+
+.navigation
+  position: absolute
+  bottom: 35px
+  left: 0
+  display: block
+  
+  li
+    text-transform: uppercase
+    letter-spacing: 0.15em
+    font-style: italic
+    opacity: 0
+    transform: translateX(-2em)
+    animation: fade 500ms ease-out forwards
+    display: block
+
+    @for $i from 0 through 3
+      &:nth-child(#{$i})
+        margin-left: calc(#{$i}em - 1em)
+
+.links, .navigation
+  a
+    color: $secondary
+    &:hover
+      color: $tertiary
+
+.navlabel
+  position: absolute
+  top: 0
+  left: 0
+  opacity: 0
+  font-style: italic
+  transform: rotate(-90deg) translateX(-100%)
+  transform-origin: top left
+  animation: blink 4000ms step-end forwards
+
+  a
+    color: $secondary
+    margin-left: 0.2em
+    &.active, &:hover
+      color: $primary
+
+.projects, .gallery, .home
+  &.hidden
+    display: none
+  &.active
+    display: initial
+  
+.projects
+  ol
+    max-height: 100%
+    overflow-y: auto
+    padding-left: 50px
+    display: flex
+    flex-wrap: wrap
+
+    counter-reset: li
+    margin-right: 0
+    margin-left: 0
+
+  li
+    position: relative
+    flex: 1
+    font-size: 0.23em
+    margin-bottom: 2em
+    list-style: none
+    margin-right: 2em
+
+    @media screen and (max-width: 1000px)
+      min-width: 40vw
+      max-width: calc(50% - 2em)
+    @media screen and (min-width: 1000px)
+      min-width: 25vw
+      max-width: calc(33% - 2em)
+
+    &:before
+      content: counter(li)'.'
+      counter-increment: li
+      position: absolute
+      top: 0.4em
+      left: 0
+      font-size: 2.8em
+
+    a
+      &:hover
+        .desc
+          color: $primary
+        .pos
+          opacity: 1
+
+    .pos
+      color: $secondary
+      position: absolute
+      top: 0.45em
+      left: 2em
+      opacity: 0
+      font-size: 2.8em
+
+    .title
+      color: $primary
+      text-align: right
+      font-size: 4em
+      padding-bottom: 10px
+      border-bottom: 1px solid $secondary 
+      pointer-events: none
+    .desc
+      color: $secondary
+      font-size: 3em
+      pointer-events: none
+
+::-webkit-scrollbar-track
+  opacity: 0
+  background: $bg
+::-webkit-scrollbar 
+  width: 4px
+  height: 4px
+  background: $secondary
+::-webkit-scrollbar-thumb
+  border-radius: 4px
+  background: $secondary
+
+.gallery
+  .albums
+    padding-left: 50px
+    display: flex
+    flex-direction: column
+
+    .close
+      display: none
+      position: absolute
+      top: 0
+      right: 0
+      cursor: pointer
+      -webkit-user-select: none
+      user-select: none
+      text-transform: uppercase
+    input
+      display: none      
+
+    > div
+      position: relative
+      padding-top: 2em
+      margin-bottom: 1em
+
+      .label
+        position: absolute
+        top: 0
+        left: 0
+
+      ul
+        height: calc(25vh - 2em)
+        overflow-x: scroll
+        overflow-y: hidden
+        padding-bottom: 1em
+        white-space: nowrap
+
+        li
+          display: inline-block
+          height: 100%
+          label
+            display: none
+          > span > span
+            display: none
+          img
+            width: auto
+            height: 100%
+            margin-right: 1em
+            cursor: pointer
+            -webkit-user-select: none
+            user-select: none
+            image-orientation: from-image
+        
+    &.fullscreen
+      position: relative
+      height: 100%
+
+      .close
+        display: block
+
+      > div
+        position: absolute
+        top: 0
+        left: 0
+        width: 100%
+        padding: 0
+        margin: 0
+        pointer-events: none
+
+        > ul
+          height: calc(100vh - 10em)
+          overflow: visible
+          pointer-events: none
+        .label
+          display: none
+      li
+        display: none
+
+      input:checked + li
+        display: block
+        position: absolute
+        top: 0
+        left: 0
+        right: 0
+        bottom: 0
+        span
+          position: absolute
+          top: 50%
+          left: 50%
+          transform: translate(-50%, -50%)
+
+        img
+          max-width: 80vw
+          max-height: 80vh
+          width: auto
+          height: auto
+
+        > span > span
+          display: block
+          position: absolute
+          top: calc(100% + 2em)
+          color: $secondary
+          > a
+            pointer-events: all
+            color: $primary
+        
+        label
+          display: block
+          font-size: 4em
+          position: absolute
+          top: 50%
+          pointer-events: all
+          cursor: pointer
+          -webkit-user-select: none
+          user-select: none
+          transition: transform 300ms
+          padding-left: 15px
+          padding-right: 15px
+          transform: translate(0px,-50%)
+          &.prev
+            left: 0em
+            &:hover
+              transform: translate(-5px, -50%)
+          &.next
+            right: 0em
+            &:hover
+              transform: translate(5px, -50%)
+
+.post
+  height: 100%
+  padding-left: 50px
+  padding-right: 50px
+  overflow-y: auto
+  overflow-x: hidden
+
+  .inner
+    max-width: 800px
+    margin-left: auto
+    margin-right: auto
+
+  .label
+    margin-bottom: 1em
+  hr
+    margin-bottom: 1em
+    border-width: 1px
+    border-color: $secondary
+    
+  .content
+    color: $tertiary
+    font-size: 0.7em
+    font-weight: 300
+  
+  a
+    color: $secondary
+
+.devlogs
+  ol
+    &:after
+      display: none
+  li
+    min-width: 50vw

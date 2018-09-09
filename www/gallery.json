@@ -1,23 +1,21 @@
 {
   "artwork": [
-    { "file" : "c03.jpg",            "desc" : "Part 1 of a 3 part series, coming soon." },
-    { "file" : "blastoise.jpg",      "desc" : "A tribute to my favorite starter pokemon." },
-    { "file" : "tinytim.jpg",        "desc" : "Character for <a target='_blank' href='http://tinytimliteraryreview.com'>Tiny Tim Literary Review</a>." },
-    { "file" : "loudb.jpg",          "desc" : "Soundcloud artwork and logo for <a target='_blank' href='https://soundcloud.com/toofknloud'>TFL</a>." },
-    { "file" : "veggies.jpg",        "desc" : "Artwork for <a target='_blank' href='https://soundcloud.com/toofknloud/kahin-lage-tfloud-remix'>Kahin Lage</a>." },
-    { "file" : "wolf.jpg",           "desc" : "" }
+    { "file" : "doe.jpg",            "desc" : "watercolor" },
+    { "file" : "c03.jpg",            "desc" : "digital" },
+    { "file" : "blastoise.jpg",      "desc" : "A tribute to my favorite starter pokemon, digital" },
+    { "file" : "tinytim.jpg",        "desc" : "Character for <a target='_blank' href='http://tinytimliteraryreview.com'>Tiny Tim Literary Review</a>, diigtal" },
+    { "file" : "loudb.jpg",          "desc" : "Artwork and logo for <a target='_blank' href='https://soundcloud.com/toofknloud'>TFLoud</a>, pencil" },
+    { "file" : "veggies.jpg",        "desc" : "Artwork for <a target='_blank' href='https://soundcloud.com/toofknloud/kahin-lage-tfloud-remix'>TFLoud</a>, pencil & digital" }
   ],
   "design": [
     { "file": "xyz.png",             "desc" : "Logo for XYZ Programming." },
     { "file": "karisma.jpg",         "desc" : "Logo for <a target='_blank' href='http://karismanyc.com'>Karisma</a>." },
     { "file": "tradehouse.jpg",      "desc" : "Website redesign for <a href='http://tradehouse.as/'>Tradehouse</a>." },
-    { "file": "dontfogettolove.jpg", "desc" : "Wallpaper <a href='/gallery/artwork/dontfogettolove.jpg' download>download</a>." },
-    { "file": "lovetogive.jpg",      "desc" : "Poster <a href='/gallery/artwork/lovetogive.jpg' download>download</a>." }
+    { "file": "lovetogive.jpg",      "desc" : "Poster for Cornell Givology." }
   ],
   "photography" : [
     {"file" : "DSC_0011.jpg", "desc" : "" },
     {"file" : "DSC_0013.jpg", "desc" : "" },
-    {"file" : "DSC_0049.jpg", "desc" : "" },
     {"file" : "DSC_0065.jpg", "desc" : "" },
     {"file" : "DSC_0068.jpg", "desc" : "" },
     {"file" : "DSC_0153.jpg", "desc" : "" },
@@ -88,12 +86,9 @@
     {"file" : "20140114_154044.jpg", "desc" : "" },
     {"file" : "20140114_155935.jpg", "desc" : "" },
     {"file" : "20140114_161955.jpg", "desc" : "" },
-    {"file" : "20140114_163128_HDR.jpg", "desc" : "" },
-    {"file" : "20140114_201824.jpg", "desc" : "" },
     {"file" : "20140115_144123.jpg", "desc" : "" },
     {"file" : "20170109_145015_HDR.jpg", "desc" : "" },
     {"file" : "FB_IMG_1484156295533.jpg", "desc" : "" },
-    {"file" : "IMG_20170302_163814_838.jpg", "desc" : "" },
     {"file" : "IMG_20170321_033844_346.jpg", "desc" : "" },
     {"file" : "IMG_20170322_165802_992.jpg", "desc" : "" },
     {"file" : "IMG_20170411_143402_990.jpg", "desc" : "" },

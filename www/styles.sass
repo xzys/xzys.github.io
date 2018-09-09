@@ -2,7 +2,7 @@ $primary: rgba(255,255,255,1)
 $secondary: rgba(255,255,255,0.4)
 $tertiary: rgba(255,255,255,0.6)
 $trans: rgba(255,255,255,0)
-$bg: #111111
+$bg: #202025
 
 body
   padding: 2em
@@ -257,8 +257,7 @@ a
     margin-top: -0.2em
     text-align: right
     padding-right: 28px
-    a
-      color: $secondary
+
     li
       opacity: 0
       text-transform: uppercase
@@ -288,8 +287,7 @@ a
   bottom: 35px
   left: 0
   display: block
-  a
-    color: $secondary
+  
   li
     text-transform: uppercase
     letter-spacing: 0.15em
@@ -299,8 +297,15 @@ a
     animation: fade 500ms ease-out forwards
     display: block
 
-    &:nth-child(1):before
-      color: rgba(255,255,255,1)
+    @for $i from 0 through 3
+      &:nth-child(#{$i})
+        margin-left: calc(#{$i}em - 1em)
+
+.links, .navigation
+  a
+    color: $secondary
+    &:hover
+      color: $tertiary
 
 .navlabel
   position: absolute
@@ -336,29 +341,20 @@ a
     margin-right: 0
     margin-left: 0
 
-    &:after
-      content: ""
-      flex: 1
-      font-size: 0.2em
-      margin-right: 3em
-      margin-bottom: 2em
-
-      @media screen and (min-width: 1000px)
-        margin-left: 2em
-        flex: 1
-
   li
     position: relative
     flex: 1
-    font-size: 0.2em
+    font-size: 0.23em
     margin-bottom: 2em
     list-style: none
     margin-right: 2em
 
     @media screen and (max-width: 1000px)
       min-width: 40vw
+      max-width: calc(50% - 2em)
     @media screen and (min-width: 1000px)
       min-width: 25vw
+      max-width: calc(33% - 2em)
 
     &:before
       content: counter(li)'.'
@@ -366,6 +362,7 @@ a
       position: absolute
       top: 0.4em
       left: 0
+      font-size: 2.8em
 
     a
       &:hover
@@ -380,6 +377,7 @@ a
       top: 0.45em
       left: 2em
       opacity: 0
+      font-size: 2.8em
 
     .title
       color: $primary
