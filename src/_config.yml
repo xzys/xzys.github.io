@@ -13,6 +13,9 @@ collections:
   devlogs:
     output: true
     permalink: /devlogs/:title
+  projects:
+    output: true
+    permalink: /projects/:title
 
 markdown: kramdown
 theme: minima

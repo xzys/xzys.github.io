@@ -351,7 +351,7 @@ a:hover {
   color: rgba(255, 255, 255, 0.4);
 }
 .links a:hover, .navigation a:hover {
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .navlabel {
@@ -388,6 +388,7 @@ a:hover {
   counter-reset: li;
   margin-right: 0;
   margin-left: 0;
+  padding-right: 1em;
 }
 .projects li {
   position: relative;
@@ -395,18 +396,24 @@ a:hover {
   font-size: 0.23em;
   margin-bottom: 2em;
   list-style: none;
-  margin-right: 2em;
-}
-@media screen and (max-width: 1000px) {
-  .projects li {
-    min-width: 40vw;
-    max-width: calc(50% - 2em);
-  }
+  margin-right: 3em;
 }
 @media screen and (min-width: 1000px) {
   .projects li {
     min-width: 25vw;
-    max-width: calc(33% - 2em);
+    max-width: calc(33% - 3em);
+  }
+}
+@media screen and (min-width: 700px) and (max-width: 1000px) {
+  .projects li {
+    min-width: 40vw;
+    max-width: calc(50% - 3em);
+  }
+}
+@media screen and (max-width: 700px) {
+  .projects li {
+    min-width: calc(100% - 3em);
+    max-width: calc(100% - 3em);
   }
 }
 .projects li:before {
@@ -417,21 +424,23 @@ a:hover {
   left: 0;
   font-size: 2.8em;
 }
-.projects li a:hover .desc {
-  color: white;
+.projects li .project:hover .desc {
+  color: rgba(255, 255, 255, 0.7);
 }
-.projects li a:hover .pos {
+.projects li .project:hover .pos {
   opacity: 1;
 }
-.projects li .pos {
+.projects li .project .pos, .projects li .project .date {
   color: rgba(255, 255, 255, 0.4);
   position: absolute;
   top: 0.45em;
   left: 2em;
-  opacity: 0;
   font-size: 2.8em;
 }
-.projects li .title {
+.projects li .project .pos {
+  opacity: 0;
+}
+.projects li .project .title {
   color: white;
   text-align: right;
   font-size: 4em;
@@ -439,9 +448,9 @@ a:hover {
   border-bottom: 1px solid rgba(255, 255, 255, 0.4);
   pointer-events: none;
 }
-.projects li .desc {
+.projects li .project .desc {
   color: rgba(255, 255, 255, 0.4);
-  font-size: 3em;
+  font-size: 3.2em;
   pointer-events: none;
 }
 
@@ -611,17 +620,21 @@ a:hover {
   margin-left: auto;
   margin-right: auto;
 }
+.post .inner.inner-smaller {
+  max-width: 700px;
+}
 .post .label {
   margin-bottom: 1em;
 }
 .post hr {
-  margin-bottom: 1em;
+  margin-top: 2em;
+  margin-bottom: 2em;
   border-width: 1px;
   border-color: rgba(255, 255, 255, 0.4);
 }
 .post .content {
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 0.7em;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.8em;
   font-weight: 300;
 }
 .post a {

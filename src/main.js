@@ -1,18 +1,13 @@
-const nav = (page) => {
-  window.history.pushState({}, page, page);
+const setNav = (page) => {
   ['home', 'gallery', 'projects'].map(c => 
     document.getElementsByClassName(c)[0].className = c + (c === page ? " active" : " hidden")
   );
 }
-/*
-if (window.location.origin === 'http://www.xyzprogramming.solutions' || window.location.origin === 'http://xyzprogramming.solutions') {
-  document.querySelector('.center').className = "center logo";
-  document.querySelector('.name.label').innerText = "xyz programming";
-  document.querySelector('.links .label').innerText = "sachin rudraraju";
-} else {
-  document.querySelector('.center').className = "center profile";
+const nav = (page) => {
+  window.history.pushState({page: page}, page, page);
+  setNav(page);
 }
-*/
+window.onpopstate = (e) => {setNav(e.state.page)}
 
 fetch("/styles.css").then(r => r.text()).then(text => {
   const lines = text.split('\n');
@@ -40,12 +35,17 @@ fetch("/projects.json").then(r => r.json()).then(data => {
   const projects = document.getElementById('project-list');
   data.map(p => {
     const el = document.createElement('li');
-    el.innerHTML = (
-      '<a href="'+p.link+'" '+(p.link[0] === '/' ? '' : 'target="_blank"')+'>'+
+    el.innerHTML = (p.link ? (
+      '<a class="project" rel="noreferrer" href="'+p.link+'" '+(p.link[0] === '/' ? '' : 'target="_blank"')+'>'+
         '<div class="title">'+p.title+'</div>'+
         '<p class="desc">'+p.desc+'</p>'+
-        '<div class="pos">'+p.alt+'</div>'+
-      '</a>');
+        '<div class="pos">'+p.pos+'</div>'+
+      '</a>') : (
+      '<div class="project">'+
+        '<div class="title">'+p.title+'</div>'+
+        '<p class="desc">'+p.desc+'</p>'+
+        '<div class="pos">'+p.pos+'</div>'+
+      '</div>'));
     projects.appendChild(el);
   });
 });

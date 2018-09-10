@@ -1,17 +1,17 @@
 {
   "artwork": [
-    { "file" : "doe.jpg",            "desc" : "watercolor" },
-    { "file" : "c03.jpg",            "desc" : "digital" },
-    { "file" : "blastoise.jpg",      "desc" : "A tribute to my favorite starter pokemon, digital" },
+    { "file" : "doe.jpg",            "desc" : "Doe, watercolor" },
+    { "file" : "c03.jpg",            "desc" : "Model, digital" },
+    { "file" : "blastoise.jpg",      "desc" : "My favorite starter pokemon, digital" },
     { "file" : "tinytim.jpg",        "desc" : "Character for <a target='_blank' href='http://tinytimliteraryreview.com'>Tiny Tim Literary Review</a>, diigtal" },
     { "file" : "loudb.jpg",          "desc" : "Artwork and logo for <a target='_blank' href='https://soundcloud.com/toofknloud'>TFLoud</a>, pencil" },
     { "file" : "veggies.jpg",        "desc" : "Artwork for <a target='_blank' href='https://soundcloud.com/toofknloud/kahin-lage-tfloud-remix'>TFLoud</a>, pencil & digital" }
   ],
   "design": [
-    { "file": "xyz.png",             "desc" : "Logo for XYZ Programming." },
-    { "file": "karisma.jpg",         "desc" : "Logo for <a target='_blank' href='http://karismanyc.com'>Karisma</a>." },
-    { "file": "tradehouse.jpg",      "desc" : "Website redesign for <a href='http://tradehouse.as/'>Tradehouse</a>." },
-    { "file": "lovetogive.jpg",      "desc" : "Poster for Cornell Givology." }
+    { "file": "xyz.png",             "desc" : "Logo for XYZ Programming" },
+    { "file": "karisma.jpg",         "desc" : "Logo for <a target='_blank' href='http://karismanyc.com'>Karisma</a>" },
+    { "file": "tradehouse.jpg",      "desc" : "Website redesign for Tradehouse.as" },
+    { "file": "lovetogive.jpg",      "desc" : "Poster for Cornell Givology" }
   ],
   "photography" : [
     {"file" : "DSC_0011.jpg", "desc" : "" },
