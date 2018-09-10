@@ -53,6 +53,10 @@ svg.rect
   transform: translate(-50%, -50%)
   display: block
 
+  @media screen and (max-width: 700px)
+    width: 125px
+    height: 250px
+
 svg.diamond
   width: 500px
   height: 500px
@@ -93,6 +97,9 @@ svg.diamond
   .logo
     width: 250px
 
+    @media screen and (max-width: 700px)
+      width: 125px
+
     img
       width: 100px
       position: absolute
@@ -101,6 +108,9 @@ svg.diamond
       display: block
       transform: translate(-50%, -50%)
       opacity: 0
+
+      @media screen and (max-width: 700px)
+        width: 50px
 
     img[src="/images/xyz1.svg"]
       animation: xyz 1000ms ease-out forwards
@@ -193,7 +203,7 @@ pre
 .home, .gallery, .projects
   ul
     list-style: none
-    font-size: 0.7em 
+    font-size: 0.8em
 
   ul, ol
     padding: 0
@@ -230,7 +240,7 @@ a
   position: absolute
   bottom: 0
   left: 0
-  font-size: 1.5em
+  font-size: 1.6em
   text-transform: uppercase
   animation: blink 4000ms step-end forwards
   display: block
@@ -249,6 +259,7 @@ a
     animation: blink 4000ms step-end forwards
     animation-delay: 500ms
     display: block
+    font-size: 1.1em
 
   ul
     position: absolute
@@ -313,6 +324,7 @@ a
   left: 0
   opacity: 0
   font-style: italic
+  font-size: 1.1em
   transform: rotate(-90deg) translateX(-100%)
   transform-origin: top left
   animation: blink 4000ms step-end forwards
@@ -366,7 +378,7 @@ a
       position: absolute
       top: 0.4em
       left: 0
-      font-size: 2.8em
+      font-size: 3em
 
     .project
       &:hover
@@ -380,21 +392,21 @@ a
         position: absolute
         top: 0.45em
         left: 2em
-        font-size: 2.8em
+        font-size: 3em
       .pos
         opacity: 0
 
       .title
         color: $primary
         text-align: right
-        font-size: 4em
+        font-size: 4.2em
         padding-bottom: 10px
         border-bottom: 1px solid $secondary 
         pointer-events: none
 
       .desc
         color: $secondary
-        font-size: 3.2em
+        font-size: 3.6em
         pointer-events: none
 
 ::-webkit-scrollbar-track
@@ -570,4 +582,4 @@ a
     &:after
       display: none
   li
-    min-width: 50vw
+    min-width: 100%
