@@ -12,5 +12,5 @@ build:
 	
 
 sync:
-	rsync -azP --delete www/ gce-i1:projects/sachin.rudraraju.xyz/
+	rsync -azP --delete www/ aws-free:www/sachin.is/
 
