@@ -1,6 +1,0 @@
-#!/bin/sh
-for f in www/gallery/photography/*; do
-  echo $f
-  mv "$f" "$f".bak
-  convert -auto-orient "$f".bak "$f"
-done
