@@ -28,10 +28,6 @@ view the assigned threat tier, alignments, and curated metadata for submitted se
 
 ---
 
-- **Role:** Lead Architect and Developer, including leading a team of two contractors to implement login flow and a
-  frontend redesign.
-- **Team:** Omar Tabbaa (Principal Investigator), Trevor Petrel (Project Manager)
+- **Role:** Lead Architect and Developer
+- **Team:** Omar Tabbaa, Trevor Petrel
 - **Stack:** Kubernetes, Python, C++, React
-
-
-

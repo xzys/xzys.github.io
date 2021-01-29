@@ -16,5 +16,5 @@ content, allowing users to rediscover content in meaningful ways.
 ---
 
 - **Role**: Chief Product Officer, responsible for all client-facing apps, landing page, and several backend modules.
-- **Team**: Rahul Shah (CEO), Christopher Goes (COO)
+- **Team**: Rahul Shah, Christopher Goes
 - **Stack**: Haskell, Go, React, React Native
