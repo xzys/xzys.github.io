@@ -6,11 +6,11 @@ all: build
 build: build-uptime build-portfolio
 
 
-sync:
-	rsync -azP --delete www/ aws1:www/sachin.rudraraju.xyz/
+sync: sync-uptime sync-portfolio
 
 
-# ========== build scripts  ==========
+
+# ========== uptime monitor ==========
 
 
 # uptime is synced to bb-pages
@@ -32,8 +32,14 @@ sync-uptime:
 	set -e; BUILDDIR=$${TMPDIR}portfolio-www-`date '+%s'`; \
 	git worktree add $$BUILDDIR bb-pages; \
 	rsync -a --delete --exclude '.git*' ext/uptime-status/build/ $$BUILDDIR/; \
+	cd $$BUILDDIR; \
 	git acp "`git-generate-commit-message`"; \
+	cd -; \
 	git worktree remove $$BUILDDIR --force
+
+
+
+# ========== portfolio ==========
 
 
 
@@ -44,6 +50,10 @@ build-portfolio:
 		--volume="$$PWD:/srv/jekyll" \
 		-it \
 		sachin-site
+
+
+sync-portfolio:
+	rsync -azP --delete www/ aws1:www/sachin.rudraraju.xyz/
 
 
 # auto orient photos
