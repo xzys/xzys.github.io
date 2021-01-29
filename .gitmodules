@@ -1,0 +1,3 @@
+[submodule "ext/uptime-status"]
+	path = ext/uptime-status
+	url = git@bitbucket.org:sachinrudr/uptime-status.git
