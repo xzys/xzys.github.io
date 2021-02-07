@@ -53,7 +53,10 @@ build-portfolio:
 
 
 sync-portfolio:
-	rsync -azP --delete www/ aws1:www/sachin.rudraraju.xyz/
+	# ssh aws1 'chmod +R'
+	rsync -azP \
+		--delete \
+		www/ aws1:www/sachin.rudraraju.xyz/
 
 
 # auto orient photos
