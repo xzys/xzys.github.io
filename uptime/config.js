@@ -5,7 +5,7 @@ window.Config = {
   SiteName: 'Uptime Monitor',
 
   // 站点链接
-  SiteUrl: '/',
+  SiteUrl: '/uptime/',
 
   // UptimeRobot Api Keys
   // 支持 Monitor-Specific 和 Read-Only 两只 Api Key
