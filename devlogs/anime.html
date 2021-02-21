@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>/home/sachin/www</title>
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/formatting.css">
+  <link href="https://fonts.googleapis.com/css?family=Inconsolata|Source+Sans+Pro:200,300,400" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <div class="post">
+      <div class="navlabel label">
+        <a href="/home">home</a>
+        <a href="/projects">projects</a>
+        <a href="/gallery">gallery</a>
+        <a href="/devlogs" class="active">devlogs</a>
+      </div>
+      <div class="inner">
+        <div class="label">feeding anime addiction</div>
+        <hr>
+        <div class="content">
+          <h3 id="table-of-contents">Table of Contents</h3>
+<ol>
+  <li><a href="#intro">Introduction</a></li>
+  <li><a href="#reverse">Reverse Engineering</a></li>
+  <li><a href="#data">Data Collection</a></li>
+</ol>
+
+<p><span id="intro"></span></p>
+<h3 id="introduction">Introduction</h3>
+
+<p>Anime streaming sites are plagued with ads, wait screens, and non-intuitive UI. Wouldn’t it great if
+we could just have the videos to watch at our leisure? Here we try and reverse engineer a streaming
+site to do just that.</p>
+
+<p><span id="reverse"></span></p>
+<h3 id="reverse-engineering">Reverse Engineering</h3>
+
+<p>First, we use our browser to inspect the site Looking through the DOM. There’s a number of javacript
+files the page requests, but only one that comes from it’s own domain called <code class="highlighter-rouge">all.js</code>. We use <code class="highlighter-rouge">wget</code> to
+download this file. The file looks like this. Each line contains some obfuscated javascript.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kr">eval</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">p</span><span class="p">,</span><span class="nx">a</span><span class="p">,</span><span class="nx">c</span><span class="p">,</span><span class="nx">k</span><span class="p">,</span><span class="nx">e</span><span class="p">,</span><span class="nx">r</span><span class="p">){...</span>
+<span class="kr">eval</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">p</span><span class="p">,</span><span class="nx">a</span><span class="p">,</span><span class="nx">c</span><span class="p">,</span><span class="nx">k</span><span class="p">,</span><span class="nx">e</span><span class="p">,</span><span class="nx">r</span><span class="p">){...</span>
+<span class="kr">eval</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">p</span><span class="p">,</span><span class="nx">a</span><span class="p">,</span><span class="nx">c</span><span class="p">,</span><span class="nx">k</span><span class="p">,</span><span class="nx">e</span><span class="p">,</span><span class="nx">r</span><span class="p">){...</span>
+<span class="kr">eval</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">p</span><span class="p">,</span><span class="nx">a</span><span class="p">,</span><span class="nx">c</span><span class="p">,</span><span class="nx">k</span><span class="p">,</span><span class="nx">e</span><span class="p">,</span><span class="nx">r</span><span class="p">){...</span>
+<span class="kr">eval</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">p</span><span class="p">,</span><span class="nx">a</span><span class="p">,</span><span class="nx">c</span><span class="p">,</span><span class="nx">k</span><span class="p">,</span><span class="nx">e</span><span class="p">,</span><span class="nx">r</span><span class="p">){...</span>
+<span class="p">...</span><span class="c1">// 19 total lines of this</span>
+</code></pre></div></div>
+
+<p>This javascript was probably made using this popular <a href="http://dean.edwards.name/packer/">javascript
+obfuscator</a> called packer. One way we can get around this is by
+replacing the ‘eval’ function in each line with <code class="highlighter-rouge">console.log</code>. This has the effect of undoing the
+work that the obfuscator did, and instead of executing the javascript code, printing it out to
+stdout.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">!</span><span class="kd">function</span><span class="p">(</span><span class="nx">t</span><span class="p">){</span><span class="kd">var</span> <span class="nx">e</span><span class="o">=</span><span class="s2">"object"</span><span class="p">,</span><span class="nx">n</span><span class="o">=</span><span class="s2">"document"</span><span class="p">,</span><span class="nx">r</span><span class="o">=</span><span class="s2">"jQuery requires a window with a "</span><span class="p">...</span>
+<span class="o">!</span><span class="kd">function</span><span class="p">(</span><span class="nx">t</span><span class="p">){</span><span class="kd">var</span> <span class="nx">e</span><span class="o">=</span><span class="s2">"undefined"</span><span class="p">,</span><span class="nx">i</span><span class="o">=</span><span class="s2">"Bootstrap's JavaScript requires jQuery"</span><span class="p">,</span><span class="nx">s</span><span class="o">=</span><span class="nx">a</span><span class="p">...</span>
+<span class="o">!</span><span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">){</span><span class="kd">var</span> <span class="nx">a</span><span class="o">=</span><span class="s2">"floor"</span><span class="p">,</span><span class="nx">r</span><span class="o">=</span><span class="s2">"loop"</span><span class="p">,</span><span class="nx">t</span><span class="o">=</span><span class="s2">"onAutoplay"</span><span class="p">,</span><span class="nx">s</span><span class="o">=</span><span class="s2">"autoplay"</span><span class="p">,</span><span class="nx">i</span><span class="o">=</span><span class="s2">"target"</span><span class="p">,</span><span class="nx">n</span><span class="o">=</span><span class="p">...</span>
+<span class="o">!</span><span class="kd">function</span><span class="p">(</span><span class="nx">t</span><span class="p">){</span><span class="kd">var</span> <span class="nx">e</span><span class="o">=</span><span class="s2">"function"</span><span class="p">,</span><span class="nx">r</span><span class="o">=</span><span class="s2">"Cannot find module '"</span><span class="p">,</span><span class="nx">n</span><span class="o">=</span><span class="s2">"'"</span><span class="p">,</span><span class="nx">i</span><span class="o">=</span><span class="s2">"code"</span><span class="p">,</span><span class="nx">o</span><span class="o">=</span><span class="s2">"MOD"</span><span class="p">...</span>
+<span class="o">!</span><span class="kd">function</span><span class="p">(</span><span class="nx">t</span><span class="p">){</span><span class="kd">var</span> <span class="nx">e</span><span class="o">=</span><span class="s2">"init"</span><span class="p">,</span><span class="nx">i</span><span class="o">=</span><span class="s2">"prototype"</span><span class="p">,</span><span class="nx">s</span><span class="o">=</span><span class="s2">"options"</span><span class="p">,</span><span class="nx">n</span><span class="o">=</span><span class="s1">'[data-dismiss="modal"'</span><span class="p">...</span>
+<span class="o">!</span><span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">){</span><span class="kd">var</span> <span class="nx">n</span><span class="o">=</span><span class="s2">"init"</span><span class="p">,</span><span class="nx">t</span><span class="o">=</span><span class="s2">"prototype"</span><span class="p">,</span><span class="nx">o</span><span class="o">=</span><span class="s2">"options"</span><span class="p">,</span><span class="nx">a</span><span class="o">=</span><span class="s2">"extend"</span><span class="p">,</span><span class="nx">s</span><span class="o">=</span><span class="s2">"data"</span><span class="p">,</span><span class="nx">i</span><span class="o">=</span><span class="s2">"o"</span><span class="p">...</span>
+<span class="o">!</span><span class="kd">function</span><span class="p">(</span><span class="nx">t</span><span class="p">){</span><span class="kd">var</span> <span class="nx">e</span><span class="o">=</span><span class="s2">"1.2.10"</span><span class="p">,</span><span class="nx">i</span><span class="o">=</span><span class="s2">"&lt;div&gt;"</span><span class="p">,</span><span class="nx">o</span><span class="o">=</span><span class="s1">'&lt;div class="cluetip-outer"&gt;'</span><span class="p">,</span><span class="nx">s</span><span class="o">=</span><span class="s1">'&lt;di'</span><span class="p">...</span>
+<span class="o">!</span><span class="kd">function</span><span class="p">(</span><span class="nx">T</span><span class="p">){</span><span class="kd">var</span> <span class="nx">e</span><span class="o">=</span><span class="s2">"toLowerCase"</span><span class="p">,</span><span class="nx">S</span><span class="o">=</span><span class="s2">"length"</span><span class="p">,</span><span class="nx">i</span><span class="o">=</span><span class="s2">"call"</span><span class="p">,</span><span class="nx">o</span><span class="o">=</span><span class="s2">"i"</span><span class="p">,</span><span class="nx">P</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span><span class="nx">a</span><span class="o">=</span><span class="s2">"</span><span class="err">\\</span><span class="s2">biPhone"</span><span class="p">...</span>
+<span class="o">!</span><span class="kd">function</span><span class="p">(</span><span class="nx">n</span><span class="p">){</span><span class="kd">var</span> <span class="nx">e</span><span class="o">=</span><span class="s1">'[data-toggle="dropdown"]'</span><span class="p">,</span><span class="nx">o</span><span class="o">=</span><span class="s2">".disabled, :disabled"</span><span class="p">,</span><span class="nx">t</span><span class="o">=</span><span class="s2">".d"</span><span class="p">...</span>
+<span class="o">!</span><span class="kd">function</span><span class="p">(</span><span class="nx">t</span><span class="p">){</span><span class="kd">var</span> <span class="nx">e</span><span class="o">=</span><span class="s2">"function"</span><span class="p">,</span><span class="nx">s</span><span class="o">=</span><span class="s2">"jquery"</span><span class="p">,</span><span class="nx">o</span><span class="o">=</span><span class="s2">"object"</span><span class="p">,</span><span class="nx">a</span><span class="o">=</span><span class="s2">"create"</span><span class="p">,</span><span class="nx">n</span><span class="o">=</span><span class="s2">"prototype"</span><span class="p">,...</span>
+<span class="o">!</span><span class="kd">function</span><span class="p">(</span><span class="nx">t</span><span class="p">){</span><span class="kd">var</span> <span class="nx">e</span><span class="o">=</span><span class="s2">"data"</span><span class="p">,</span><span class="nx">s</span><span class="o">=</span><span class="s2">"bs.toggle"</span><span class="p">,</span><span class="nx">o</span><span class="o">=</span><span class="s2">"object"</span><span class="p">,</span><span class="nx">i</span><span class="o">=</span><span class="s2">"string"</span><span class="p">,</span><span class="nx">n</span><span class="o">=</span><span class="s2">"options"</span><span class="p">,</span><span class="nx">l</span><span class="o">=</span><span class="nx">a</span><span class="p">...</span>
+<span class="o">!</span><span class="kd">function</span><span class="p">(</span><span class="nx">t</span><span class="p">){</span><span class="kd">var</span> <span class="nx">e</span><span class="o">=</span><span class="s2">"json"</span><span class="p">,</span><span class="nx">i</span><span class="o">=</span><span class="s2">"extend"</span><span class="p">,</span><span class="nx">n</span><span class="o">=</span><span class="s2">"ActiveHtml"</span><span class="p">,</span><span class="nx">o</span><span class="o">=</span><span class="s2">"string"</span><span class="p">,</span><span class="nx">a</span><span class="o">=</span><span class="s2">"create"</span><span class="p">,</span><span class="nx">s</span><span class="o">=</span><span class="nx">v</span><span class="p">...</span>
+<span class="o">!</span><span class="kd">function</span><span class="p">(</span><span class="nx">t</span><span class="p">){</span><span class="kd">var</span> <span class="nx">e</span><span class="o">=</span><span class="s2">"alert"</span><span class="p">,</span><span class="nx">i</span><span class="o">=</span><span class="s2">"warning"</span><span class="p">,</span><span class="nx">s</span><span class="o">=</span><span class="s2">"animated fadeInUp"</span><span class="p">,</span><span class="nx">o</span><span class="o">=</span><span class="s2">"animated fad"</span><span class="p">...</span>
+<span class="o">!</span><span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">){</span><span class="kd">var</span> <span class="nx">i</span><span class="o">=</span><span class="s2">"prototype"</span><span class="p">,</span><span class="nx">t</span><span class="o">=</span><span class="s2">".swiper-container"</span><span class="p">,</span><span class="nx">o</span><span class="o">=</span><span class="s2">".swiper-button-next"</span><span class="p">,...</span>
+<span class="o">!</span><span class="kd">function</span><span class="p">(</span><span class="nx">t</span><span class="p">){</span><span class="kd">var</span> <span class="nx">e</span><span class="o">=</span><span class="s2">"find"</span><span class="p">,</span><span class="nx">s</span><span class="o">=</span><span class="s2">"button"</span><span class="p">,</span><span class="nx">i</span><span class="o">=</span><span class="s2">"input"</span><span class="p">,</span><span class="nx">n</span><span class="o">=</span><span class="s2">"create"</span><span class="p">,</span><span class="nx">o</span><span class="o">=</span><span class="s2">"Movie.SearchAut"</span><span class="p">...</span>
+<span class="o">!</span><span class="kd">function</span><span class="p">(</span><span class="nx">t</span><span class="p">){</span><span class="kd">var</span> <span class="nx">i</span><span class="o">=</span><span class="s2">"prototype"</span><span class="p">,</span><span class="nx">n</span><span class="o">=</span><span class="s2">"find"</span><span class="p">,</span><span class="nx">s</span><span class="o">=</span><span class="s2">"span"</span><span class="p">,</span><span class="nx">e</span><span class="o">=</span><span class="s2">"data"</span><span class="p">,</span><span class="nx">o</span><span class="o">=</span><span class="s2">"keep"</span><span class="p">,</span><span class="nx">_</span><span class="o">=</span><span class="s2">"name"</span><span class="p">,</span><span class="nx">h</span><span class="p">...</span>
+<span class="o">!</span><span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">){</span><span class="kd">var</span> <span class="nx">t</span><span class="o">=</span><span class="s2">"prototype"</span><span class="p">,</span><span class="nx">i</span><span class="o">=</span><span class="s2">"find"</span><span class="p">,</span><span class="nx">r</span><span class="o">=</span><span class="s2">"#player"</span><span class="p">,</span><span class="nx">s</span><span class="o">=</span><span class="s2">"data"</span><span class="p">,</span><span class="nx">a</span><span class="o">=</span><span class="s2">"id"</span><span class="p">,</span><span class="nx">o</span><span class="o">=</span><span class="s2">"#serv"</span><span class="p">...</span>
+<span class="o">!</span><span class="kd">function</span><span class="p">(</span><span class="nx">t</span><span class="p">){</span><span class="kd">var</span> <span class="nx">s</span><span class="o">=</span><span class="s2">"prototype"</span><span class="p">,</span><span class="nx">a</span><span class="o">=</span><span class="s2">"star fa fa-star none"</span><span class="p">,</span><span class="nx">i</span><span class="o">=</span><span class="s2">"star fa fa-star-h"</span><span class="p">...</span>
+<span class="o">!</span><span class="kd">function</span><span class="p">(</span><span class="nx">t</span><span class="p">){</span><span class="kd">var</span> <span class="nx">i</span><span class="o">=</span><span class="s2">"prototype"</span><span class="p">,</span><span class="nx">e</span><span class="o">=</span><span class="s2">"#movie"</span><span class="p">,</span><span class="nx">s</span><span class="o">=</span><span class="s2">"data"</span><span class="p">,</span><span class="nx">o</span><span class="o">=</span><span class="s2">"id"</span><span class="p">,</span><span class="nx">r</span><span class="o">=</span><span class="s2">"find"</span><span class="p">,</span><span class="nx">a</span><span class="o">=</span><span class="s2">".episo"</span><span class="p">...</span>
+</code></pre></div></div>
+
+<p>Now that looks better. But not very readable. We can use the npm module <code class="highlighter-rouge">js-beautify</code> to make this
+easier to read. For convinience, I made each line into it’s own seperate file.</p>
+
+<p>If we take a peek into the network requests that the page is making using chrome dev tools, we
+notice calls to an endpoint called <code class="highlighter-rouge">ajax/episode/info</code>. Interesting… Let’s see if we can find that
+call in this code using <code class="highlighter-rouge">grep</code>.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">[</span>sachin@macbook processed]<span class="nv">$ </span><span class="nb">ls
+</span>xaa.2.js	xad.2.js	xag.2.js	xaj.2.js	xam.2.js	xap.2.js	xas.2.js
+xab.2.js	xae.2.js	xah.2.js	xak.2.js	xan.2.js	xaq.2.js
+xac.2.js	xaf.2.js	xai.2.js	xal.2.js	xao.2.js	xar.2.js
+<span class="o">[</span>sachin@macbook processed]<span class="nv">$ </span><span class="nb">grep</span> <span class="nt">-rn</span> <span class="nt">--color</span> <span class="s2">"ajax/episode/info"</span>
+xaq.2.js:87:        Ne <span class="o">=</span> <span class="s2">"ajax/episode/info"</span>,
+</code></pre></div></div>
+
+<p>Beautiful. These are lines around line 87. Looks like the obfuscator is mapping strings to these
+variables.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">Ae</span> <span class="o">=</span> <span class="s2">"abort"</span><span class="p">,</span>
+<span class="nx">Ne</span> <span class="o">=</span> <span class="s2">"ajax/episode/info"</span><span class="p">,</span>
+<span class="nx">We</span> <span class="o">=</span> <span class="s2">"update"</span><span class="p">,</span>
+<span class="nx">De</span> <span class="o">=</span> <span class="s2">"error"</span><span class="p">,</span>
+<span class="nx">_e</span> <span class="o">=</span> <span class="s2">"Have an error occured, please refresh this page (ERR 1)"</span><span class="p">,</span>
+<span class="nx">Le</span> <span class="o">=</span> <span class="s2">"direct"</span><span class="p">,</span>
+<span class="nx">Je</span> <span class="o">=</span> <span class="s2">"iframe"</span><span class="p">,</span>
+<span class="nx">Me</span> <span class="o">=</span> <span class="s2">"target"</span><span class="p">,</span>
+<span class="nx">Oe</span> <span class="o">=</span> <span class="s2">"Server error, please refresh this page and try again"</span><span class="p">,</span>
+<span class="nx">He</span> <span class="o">=</span> <span class="s2">"&lt;iframe /&gt;"</span><span class="p">,</span>
+</code></pre></div></div>
+<p>Let’s look for the the next instance of <code class="highlighter-rouge">Ne</code>. This is what we find. Looks like we’re on the right track.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">t</span><span class="p">.</span><span class="nx">episodeXHR</span> <span class="o">=</span> <span class="nx">$</span><span class="p">.</span><span class="nx">ajax</span><span class="p">(</span><span class="nx">Ne</span><span class="p">,</span> <span class="p">{</span>
+  <span class="na">data</span><span class="p">:</span> <span class="p">{</span>
+      <span class="na">id</span><span class="p">:</span> <span class="nx">e</span><span class="p">[</span><span class="nx">s</span><span class="p">](</span><span class="nx">a</span><span class="p">),</span>
+      <span class="na">update</span><span class="p">:</span> <span class="nx">e</span><span class="p">[</span><span class="nx">s</span><span class="p">](</span><span class="nx">We</span><span class="p">)</span> <span class="p">?</span> <span class="mi">1</span> <span class="p">:</span> <span class="mi">0</span>
+  <span class="p">},</span>
+  <span class="na">success</span><span class="p">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">i</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">i</span><span class="p">[</span><span class="nx">De</span><span class="p">]</span> <span class="p">?</span> 
+        <span class="nx">t</span><span class="p">.</span><span class="nx">showError</span><span class="p">(</span><span class="nx">_e</span><span class="p">)</span> <span class="p">:</span> 
+        <span class="nx">i</span><span class="p">[</span><span class="nx">x</span><span class="p">]</span> <span class="o">===</span> <span class="nx">Le</span> <span class="p">?</span> 
+          <span class="nx">t</span><span class="p">.</span><span class="nx">apiXHR</span> <span class="o">=</span> <span class="nx">t</span><span class="p">.</span><span class="nx">loadApi</span><span class="p">(</span><span class="nx">e</span><span class="p">,</span> <span class="nx">i</span><span class="p">)</span> <span class="p">:</span> 
+          <span class="nx">i</span><span class="p">[</span><span class="nx">x</span><span class="p">]</span> <span class="o">===</span> <span class="nx">Je</span> <span class="o">&amp;&amp;</span> <span class="nx">t</span><span class="p">.</span><span class="nx">renderIframe</span><span class="p">(</span><span class="nx">i</span><span class="p">[</span><span class="nx">Me</span><span class="p">])</span>
+  <span class="p">},</span>
+  <span class="na">error</span><span class="p">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'uh oh'</span><span class="p">);</span>
+      <span class="nx">t</span><span class="p">.</span><span class="nx">showError</span><span class="p">(</span><span class="nx">Oe</span><span class="p">)</span>
+  <span class="p">},</span>
+  <span class="na">complete</span><span class="p">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'complete'</span><span class="p">);</span>
+      <span class="nx">e</span><span class="p">[</span><span class="nx">s</span><span class="p">](</span><span class="nx">ne</span><span class="p">,</span> <span class="o">!</span><span class="mi">1</span><span class="p">)</span>
+  <span class="p">}</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<p>Each video on the site has an id, it looks like that is what they’re using to make this request.</p>
+
+<p>If we look at the success handler, we see that first they check for the existance of a key <code class="highlighter-rouge">De</code> in
+the response. If we take a peek at our block above, this translates to “error”. If that key is
+there, they call <code class="highlighter-rouge">showError</code>. Otherwise, if the property <code class="highlighter-rouge">x</code> (translates to “type”), is equal to
+<code class="highlighter-rouge">Le</code> (translates to “direct”), we call this function <code class="highlighter-rouge">loadApi</code> with the contents of the first
+response. If we search for that function in this file…</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">loadApi</span><span class="p">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">i</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">r</span> <span class="o">=</span> <span class="k">this</span><span class="p">,</span>
+        <span class="nx">a</span> <span class="o">=</span> <span class="nx">i</span><span class="p">.</span><span class="nx">params</span><span class="p">;</span>
+    <span class="k">return</span> <span class="nx">t</span><span class="p">[</span><span class="nx">s</span><span class="p">](</span><span class="nx">Ze</span><span class="p">,</span> <span class="nx">t</span><span class="p">[</span><span class="nx">s</span><span class="p">](</span><span class="nx">Ze</span><span class="p">)</span> <span class="o">||</span> <span class="mi">0</span><span class="p">),</span> <span class="nx">$</span><span class="p">[</span><span class="nx">ze</span><span class="p">](</span><span class="nx">a</span><span class="p">,</span> <span class="p">{</span>
+        <span class="na">_xtoken</span><span class="p">:</span> <span class="nx">e</span><span class="p">.</span><span class="nx">XTOKEN</span><span class="p">,</span>
+        <span class="na">mobile</span><span class="p">:</span> <span class="nx">lr</span><span class="p">.</span><span class="nx">phone</span><span class="p">()</span> <span class="p">?</span> <span class="mi">1</span> <span class="p">:</span> <span class="mi">0</span>
+    <span class="p">}),</span> <span class="nx">$</span><span class="p">.</span><span class="nx">ajax</span><span class="p">(</span><span class="nx">i</span><span class="p">.</span><span class="nx">grabber</span><span class="p">,</span> <span class="p">{</span>
+        <span class="na">data</span><span class="p">:</span> <span class="nx">a</span><span class="p">,</span>
+        <span class="na">success</span><span class="p">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span><span class="p">;</span>
+            <span class="nx">t</span><span class="p">[</span><span class="nx">s</span><span class="p">](</span><span class="nx">et</span><span class="p">,</span> <span class="nx">i</span><span class="p">.</span><span class="nx">subtitle</span><span class="p">),</span> <span class="nx">e</span><span class="p">[</span><span class="nx">De</span><span class="p">]</span> <span class="p">?</span> <span class="nx">e</span><span class="p">[</span><span class="nx">De</span><span class="p">]</span> <span class="o">===</span> <span class="nx">tt</span> <span class="p">?</span> <span class="nx">r</span><span class="p">.</span><span class="nx">showError</span><span class="p">(</span><span class="nx">it</span><span class="p">)</span> <span class="p">:</span> <span class="p">(</span><span class="nx">r</span><span class="p">.</span><span class="nx">reportError</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">e</span><span class="p">[</span><span class="nx">De</span><span class="p">],</span> <span class="nx">e</span><span class="p">.</span><span class="nx">token</span><span class="p">),</span> <span class="nx">r</span><span class="p">.</span><span class="nx">handleEpisodeError</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">e</span><span class="p">[</span><span class="nx">De</span><span class="p">]))</span> <span class="p">:</span> <span class="nx">r</span><span class="p">.</span><span class="nx">renderJWPlayer</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">e</span><span class="p">[</span><span class="nx">s</span><span class="p">])</span>
+        <span class="p">},</span>
+        <span class="na">error</span><span class="p">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+            <span class="nx">t</span><span class="p">[</span><span class="nx">s</span><span class="p">](</span><span class="nx">Ze</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="p">?</span> <span class="p">(</span><span class="nx">t</span><span class="p">[</span><span class="nx">s</span><span class="p">](</span><span class="nx">Ze</span><span class="p">,</span> <span class="nx">t</span><span class="p">[</span><span class="nx">s</span><span class="p">](</span><span class="nx">Ze</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="nx">r</span><span class="p">.</span><span class="nx">loadApi</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">i</span><span class="p">))</span> <span class="p">:</span> <span class="nx">r</span><span class="p">.</span><span class="nx">showError</span><span class="p">(</span><span class="nx">rt</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">})</span>
+<span class="p">},</span>
+</code></pre></div></div>
+
+<p>Looks like here, we take a part of the first response, “params”, and use it to make this second
+call to someplace <code class="highlighter-rouge">i.grabber</code>. After some fanagling, this is what I came up with.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">const</span> <span class="nx">retrieve</span> <span class="o">=</span> <span class="p">(</span><span class="nx">id</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="nx">$</span><span class="p">.</span><span class="nx">ajax</span><span class="p">(</span><span class="s1">'/ajax/episode/info'</span><span class="p">,</span> <span class="p">{</span>
+    <span class="na">data</span><span class="p">:</span> <span class="p">{</span><span class="na">id</span><span class="p">:</span> <span class="nx">id</span><span class="p">,</span> <span class="na">update</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+    <span class="na">success</span><span class="p">:</span> <span class="p">(</span><span class="nx">res</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+
+      <span class="nx">$</span><span class="p">.</span><span class="nx">ajax</span><span class="p">(</span><span class="s1">'/grabber-api/'</span><span class="p">,</span> <span class="p">{</span>
+        <span class="na">data</span><span class="p">:</span> <span class="nx">res</span><span class="p">.</span><span class="nx">params</span><span class="p">,</span>
+        <span class="na">success</span><span class="p">:</span> <span class="nx">res</span> <span class="o">=&gt;</span> <span class="p">{</span>
+          <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">res</span><span class="p">);</span>
+        <span class="p">},</span>
+        <span class="na">error</span><span class="p">:</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span>
+      <span class="p">});</span>
+    <span class="p">},</span> <span class="na">error</span><span class="p">:</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span>
+  <span class="p">});</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Running this on the site (using the console in chrome dev tools), using one of the ids from the
+site, gives us what we were looking for, a set of hosted video links with content.<br />
+(＾▽＾)</p>
+
+<p>All we need now is a way to run this without a browser. <a href="http://zombie.js.org/">Zombie.js</a> is quite amazing.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">Browser</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'zombie'</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">assert</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'assert'</span><span class="p">);</span>    
+
+<span class="kd">var</span> <span class="nx">browser</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Browser</span><span class="p">();</span>
+<span class="nx">browser</span><span class="p">.</span><span class="nx">visit</span><span class="p">(</span><span class="nx">url</span><span class="p">,</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>    
+  <span class="nx">assert</span><span class="p">.</span><span class="nx">ok</span><span class="p">(</span><span class="nx">browser</span><span class="p">.</span><span class="nx">success</span><span class="p">);</span>
+
+  <span class="nx">browser</span><span class="p">.</span><span class="nx">wait</span><span class="p">((</span><span class="nb">window</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nb">window</span><span class="p">.</span><span class="nx">$</span> <span class="o">!==</span> <span class="kc">undefined</span><span class="p">;</span>
+  <span class="p">},</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'browser loaded'</span><span class="p">);</span>
+    <span class="kd">const</span> <span class="nx">id</span> <span class="o">=</span> <span class="s1">'aks8ks'</span><span class="p">;</span>
+    <span class="nx">retrieve</span><span class="p">(</span><span class="nx">id</span><span class="p">);</span>
+  <span class="p">});</span>
+<span class="p">});</span>
+</code></pre></div></div>
+
+<p><span id="data"></span></p>
+<h3 id="data-collection">Data Collection</h3>
+
+<p>Now all we need is to collect these ids. After some more detective work on the website itself using
+chrome dev tools, we find that ids come as links on the page itself for each anime. Let’s use <code class="highlighter-rouge">wget</code>
+to download their site recursively (following links on the site and downloading them).</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">[</span>sachin@macbook <span class="o">]</span><span class="nv">$ </span>wget <span class="nt">-r</span> <span class="se">\ </span> <span class="c"># recursively download the website</span>
+                        <span class="nt">-c</span> <span class="se">\ </span> <span class="c"># continue downloads if they were left partially downloaded</span>
+                        <span class="nt">-nc</span> <span class="se">\ </span><span class="c"># --no-clobber don't redownload pages if they already exist</span>
+                        <span class="s2">"https://********/"</span>
+...
+<span class="nt">--2017-04-30</span> 14:21:15--  https://<span class="k">********</span>/genre/fantastic
+Reusing existing connection to <span class="k">********</span>:443.
+HTTP request sent, awaiting response... 503 Have you the ability to <span class="nb">read </span>quickly as the light ?
+2017-04-30 14:21:15 ERROR 503: Have you the ability to <span class="nb">read </span>quickly as the light ?.
+
+<span class="nt">--2017-04-30</span> 14:21:15--  https://<span class="k">********</span>/genre/historical
+Reusing existing connection to <span class="k">********</span>:443.
+HTTP request sent, awaiting response... 403 You sent many requests <span class="k">in </span>a short <span class="nb">time</span>, are you a bot ?
+2017-04-30 14:21:16 ERROR 403: You sent many requests <span class="k">in </span>a short <span class="nb">time</span>, are you a bot ?.
+</code></pre></div></div>
+
+<p>Oops, we forgot to play nice with the webserver and rate limit our requests. At least they have a
+sense of humor. Another thing that was happening was the download for <code class="highlighter-rouge">robots.txt</code> was stalling out,
+perhaps another countermeasure?</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">[</span>sachin@macbook <span class="o">]</span><span class="nv">$ </span>wget <span class="nt">-r</span> <span class="nt">-c</span> <span class="nt">-nc</span> <span class="se">\</span>
+                        <span class="nt">-erobots</span><span class="o">=</span>off <span class="se">\ </span><span class="c"># don't worry about getting robots.txt</span>
+                        <span class="nt">-w</span> 2 <span class="se">\ </span>        <span class="c"># wait 2 seconds between each request</span>
+                        <span class="s2">"https://********/"</span>
+</code></pre></div></div>
+
+<p>After a bit of progress, I notice that we start to download a bunch of page, one for each episide.
+These all have the same links in them, so we don’t need to get the duplicates.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">[</span>sachin@macbook <span class="o">]</span><span class="nv">$ </span>wget <span class="nt">-r</span> <span class="nt">-c</span> <span class="nt">-nc</span> <span class="nt">-erobots</span><span class="o">=</span>off <span class="nt">-w</span> 2 <span class="se">\</span>
+                        <span class="nt">--reject-regex</span> <span class="s2">"********/watch/*/*"</span> <span class="se">\ </span><span class="c"># watch urls for this regex and reject those pages</span>
+                        <span class="s2">"https://********/"</span>
+</code></pre></div></div>
+
+<p>I also notice that sometimes <code class="highlighter-rouge">wget</code> stops following links, seemingly in a random manner. I wanted to
+get all the pages listed for each genre, and I could guess at how many pages there were total from the
+website.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">[</span>sachin@macbook <span class="o">]</span><span class="nv">$ </span><span class="k">for </span>i <span class="k">in</span> <span class="o">{</span>1..79<span class="o">}</span><span class="p">;</span> <span class="k">do </span><span class="nb">sleep </span>1<span class="p">;</span> wget <span class="nt">-c</span> <span class="nt">-nc</span> <span class="nt">-erobots</span><span class="o">=</span>off <span class="s2">"https://********/genre/action?page=</span><span class="nv">$i</span><span class="s2">"</span><span class="p">;</span> <span class="k">done</span>
+</code></pre></div></div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-51069589-8', 'auto');
+    ga('send', 'pageview');
+  </script>
+</body>
+</html>

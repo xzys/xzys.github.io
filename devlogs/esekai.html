@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>/home/sachin/www</title>
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/formatting.css">
+  <link href="https://fonts.googleapis.com/css?family=Inconsolata|Source+Sans+Pro:200,300,400" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <div class="post">
+      <div class="navlabel label">
+        <a href="/home">home</a>
+        <a href="/projects">projects</a>
+        <a href="/gallery">gallery</a>
+        <a href="/devlogs" class="active">devlogs</a>
+      </div>
+      <div class="inner">
+        <div class="label">(e)sekai</div>
+        <hr>
+        <div class="content">
+          <h3 id="table-of-contents">Table of Contents</h3>
+<ol>
+  <li><a href="#intro">Introduction</a></li>
+  <li><a href="#components">Components</a></li>
+  <li><a href="#deploying">Deploying</a></li>
+  <li><a href="#map">Map Generation</a></li>
+</ol>
+
+<blockquote>
+  <p>Aprl 15th, 2017</p>
+</blockquote>
+
+<p><span id="intro"></span></p>
+<h3 id="introduction">Introduction</h3>
+
+<p>This is the base for a 2D multiplayer tile-based game.</p>
+
+<p><span id="components"></span></p>
+<h3 id="components">Components</h3>
+
+<p>Here’s an overview of the components:</p>
+
+<p>backend server (haskell)</p>
+<ul>
+  <li>procedurally generates a map, consisting of several layers (background, foreground, collision)</li>
+  <li>populates map with NPC characters, currently just clouds and rabbits</li>
+  <li>creates players as they connect to websocket, allows player to choose character</li>
+  <li>as players and NPC move around and commit actions, a seperate thread relays messages to other connected clients</li>
+</ul>
+
+<p>frontend game engine (js, phaser)</p>
+<ul>
+  <li>tile based map and movement system</li>
+  <li>handles animations and keeping the player facing in the right direction</li>
+  <li>retro graphics stolen from old pokemon spritesheets</li>
+</ul>
+
+<p>TODO:</p>
+<ul>
+  <li>create a path through map with signposts</li>
+  <li>dialogue system that can
+    <ul>
+      <li>handle list of options for responses</li>
+      <li>handle a text/numerical answer</li>
+    </ul>
+  </li>
+</ul>
+
+<p><span id="deploying"></span></p>
+<h3 id="deploying">Deploying</h3>
+
+<p>Configure nginx to point <code class="highlighter-rouge">/vedicmath/client</code> to the web frontend and <code class="highlighter-rouge">/vedicmath/ws</code> to the websocket port.
+The websocket code is from the <a href="https://www.nginx.com/blog/websocket-nginx/">nginx docs</a>.</p>
+
+<div class="language-nginx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">http</span> <span class="p">{</span>
+  <span class="kn">...</span>
+  <span class="s">upstream</span> <span class="s">vedicmath_ws</span> <span class="p">{</span>
+    <span class="kn">server</span> <span class="nf">127.0.0.1</span><span class="p">:</span><span class="mi">10001</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="kn">map</span> <span class="nv">$http_upgrade</span> <span class="nv">$connection_upgrade</span> <span class="p">{</span>
+    <span class="kn">default</span> <span class="s">upgrade</span><span class="p">;</span>
+    <span class="kn">''</span> <span class="s">close</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="kn">server</span> <span class="p">{</span>
+    <span class="kn">listen</span> <span class="mi">80</span><span class="p">;</span>
+    <span class="kn">server_name</span> <span class="s">sachin.rudraraju.xyz</span> <span class="s">www.sachin.rudraraju.xyz</span><span class="p">;</span>
+    <span class="kn">root</span> <span class="n">/home/sachin/sachin.rudraraju.xyz</span><span class="p">;</span>
+
+    <span class="kn">location</span> <span class="n">/vedicmath/client</span> <span class="p">{</span>
+      <span class="kn">alias</span> <span class="n">/home/sachin/vedicmath/frontend/www</span><span class="p">;</span>
+      <span class="kn">index</span> <span class="s">index.html</span> <span class="s">index.htm</span><span class="p">;</span>
+      <span class="kn">try_files</span> <span class="nv">$uri</span><span class="s">.html</span> <span class="nv">$uri</span> <span class="nv">$uri</span><span class="n">/</span> <span class="p">=</span><span class="mi">404</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="kn">location</span> <span class="n">/vedicmath/ws</span> <span class="p">{</span>
+      <span class="kn">proxy_pass</span> <span class="s">http://vedicmath_ws</span><span class="p">;</span>
+      <span class="kn">proxy_http_version</span> <span class="mi">1</span><span class="s">.1</span><span class="p">;</span>
+      <span class="kn">proxy_set_header</span> <span class="s">Upgrade</span> <span class="nv">$http_upgrade</span><span class="p">;</span>
+      <span class="kn">proxy_set_header</span> <span class="s">Connection</span> <span class="nv">$connection_upgrade</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><span id="map"></span></p>
+<h3 id="map-generation">Map Generation</h3>
+
+<p>We want to have a path that cuts through the map that the player can follow. Afterwards, we’ll place
+signposts along the way that teach the player and provide practice problems. To complicate things,
+the maps in this game are randomly generated at startup.</p>
+
+<p>I did some googling and found a thead about <a href="https://forum.unity3d.com/threads/procedural-path-generation-in-a-grid.304675/#post-1988551">procedural path generation in a grid</a>, which outlines an algorithm we can try.</p>
+
+<p><em>The remainder of this post assumes some familiarity with haskell. I’m no expert and mostly learned
+through reading <a href="http://learnyouahaskell.com/">Learn You a Haskell</a>.</em></p>
+
+<hr />
+
+<p>It would be beneficial to walk through existing map generation code before trying to build on it. This will also serve as a reference for myself in the future.</p>
+
+<p>Firstly, the map consists of several <code class="highlighter-rouge">Layers</code>, each of which is a two-dimensional list (read Sequence of Sequences) of Ints.</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kr">import</span> <span class="k">qualified</span> <span class="nn">Data.Sequence</span>         <span class="k">as</span> <span class="n">S</span>
+<span class="o">...</span>
+<span class="kr">data</span> <span class="kt">Layer</span> <span class="o">=</span> <span class="kt">Layer</span> <span class="p">{</span>
+  <span class="n">name</span> <span class="o">::</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Text</span><span class="p">,</span>
+  <span class="n">tiles</span> <span class="o">::</span> <span class="kt">S</span><span class="o">.</span><span class="kt">Seq</span> <span class="p">(</span><span class="kt">S</span><span class="o">.</span><span class="kt">Seq</span> <span class="kt">Int</span><span class="p">)</span>
+<span class="p">}</span> <span class="kr">deriving</span> <span class="p">(</span><span class="kt">Generic</span><span class="p">,</span> <span class="kt">Eq</span><span class="p">,</span> <span class="kt">Show</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>And this is the tilemap spritesheet that we will be <a href="https://www.spriters-resource.com/search/?q=pokemon">using</a>. Each Int represents a tile to use from this spritesheet.</p>
+
+<p><img src="/images/vedicmath-tilemap.png" alt="tilemap" /></p>
+
+<p>We Will be using perlin noise to generate terrain. Perlin noise is smooth, compared to a random
+function, so it will create islands of tiles instead of randomly placing thems through the map. 
+The function <code class="highlighter-rouge">newTileMap</code> takes a random seed, which is from the current timestamp (out of view). This
+way we can recreate a certain map if necessary. The rest of the function so far is setting up the
+perlin noise function, and a helper array <code class="highlighter-rouge">coords</code>, which has numbers from 0-99.</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kr">import</span> <span class="k">qualified</span> <span class="nn">Numeric.Noise.Perlin</span>           <span class="k">as</span> <span class="n">P</span>
+<span class="o">...</span>
+<span class="n">newTileMap</span> <span class="o">::</span> <span class="kt">Double</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="kt">Layer</span><span class="p">]</span>
+<span class="n">newTileMap</span> <span class="n">s</span> <span class="o">=</span> 
+  <span class="kr">let</span> <span class="n">seed</span> <span class="o">=</span> <span class="n">lowerBits</span> <span class="n">s</span> 
+      <span class="n">octaves</span> <span class="o">=</span> <span class="mi">5</span>
+      <span class="n">scale</span> <span class="o">=</span> <span class="mf">0.05</span>
+      <span class="n">persistance</span> <span class="o">=</span> <span class="mf">0.5</span>
+      <span class="n">perlinNoise</span> <span class="o">=</span> <span class="kt">P</span><span class="o">.</span><span class="n">perlin</span> <span class="n">seed</span> <span class="n">octaves</span> <span class="n">scale</span> <span class="n">persistance</span>    
+      <span class="n">coords</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="o">..</span><span class="n">fromIntegral</span> <span class="mi">100</span><span class="p">]</span>
+</code></pre></div></div>
+
+<p>Next, we define a function <code class="highlighter-rouge">getTile</code>, which takes an <code class="highlighter-rouge">x</code> and <code class="highlighter-rouge">y</code> coordinate and returns an Int
+corresponding to a tile. We set up two noise functions here, <code class="highlighter-rouge">noise1</code> for grass, and <code class="highlighter-rouge">noise2</code> for
+trees. As you can see, the tree noise function is set to sample at half the frequency as the grass
+one. This is because trees are made up of four tiles instead of one, either 4, 5, 14 and 15
+normally, or 4, 5, 16 and 17 if there happens to be another tree directly underneath.</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>      <span class="n">getTile</span> <span class="p">(</span><span class="n">x</span><span class="o">::</span><span class="kt">Int</span><span class="p">)</span> <span class="p">(</span><span class="n">y</span><span class="o">::</span><span class="kt">Int</span><span class="p">)</span> <span class="o">=</span> 
+        <span class="kr">let</span> <span class="n">tidBelow</span> <span class="o">=</span> <span class="n">getTile</span> <span class="n">x</span> <span class="p">(</span><span class="n">y</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">noise1</span> <span class="o">=</span> <span class="kt">P</span><span class="o">.</span><span class="n">noiseValue</span> <span class="n">perlinNoise</span> <span class="p">(</span><span class="n">fromIntegral</span> <span class="n">x</span><span class="p">,</span> <span class="n">fromIntegral</span> <span class="n">y</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+            <span class="n">noise2</span> <span class="o">=</span> <span class="kt">P</span><span class="o">.</span><span class="n">noiseValue</span> <span class="n">perlinNoise</span> <span class="p">(</span><span class="n">div</span> <span class="n">x</span><span class="p">,</span> <span class="n">div</span> <span class="n">y</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span> <span class="kr">where</span>
+                      <span class="n">div</span> <span class="n">a</span> <span class="o">=</span> <span class="n">fromIntegral</span> <span class="o">$</span> <span class="n">ceiling</span> <span class="o">$</span> <span class="p">(</span><span class="n">fromIntegral</span> <span class="n">a</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
+</code></pre></div></div>
+
+<p>This function takes care of placing the correct four tiles for a tree and also the other tiles
+depending on the value of the two noise functions at that location. You can think of us using a
+threshold function on top of the perlin noise to determine whether to place trees or grass.
+Trees take priority over grass and come first.</p>
+
+<p>If the tree noise function is above 0.4, we place a tree in the 2x2 square at that point.
+Because the division being done above floors the x and y corrdinates, those four tile locations are
+garunteed to also have a noise value above 0.4. Then, we mod the x and y coordiates with 2 to get
+the coordiates for tiles <em>within</em> each tree. The top two tiles are always 4 and 5. The decision for
+the bottom two tiles takes into account what tiles are directly below them, which we determine by
+just doing a call to <code class="highlighter-rouge">getTile</code> with an offset y coordinate in the code block above.</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>            <span class="n">id</span> <span class="o">|</span> <span class="n">noise2</span> <span class="o">&gt;</span> <span class="mf">0.4</span> <span class="o">=</span> <span class="kr">case</span> <span class="p">(</span><span class="n">x</span> <span class="p">`</span><span class="n">mod</span><span class="p">`</span> <span class="mi">2</span><span class="p">,</span> <span class="n">y</span> <span class="p">`</span><span class="n">mod</span><span class="p">`</span> <span class="mi">2</span><span class="p">)</span> <span class="kr">of</span>
+                                  <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="mi">4</span> 
+                                  <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="mi">5</span>
+                                  <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kr">if</span> <span class="n">tidBelow</span> <span class="o">==</span> <span class="mi">1</span> <span class="kr">then</span> <span class="mi">14</span> <span class="kr">else</span> <span class="mi">16</span>
+                                  <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kr">if</span> <span class="n">tidBelow</span> <span class="o">==</span> <span class="mi">1</span> <span class="kr">then</span> <span class="mi">15</span> <span class="kr">else</span> <span class="mi">17</span>
+</code></pre></div></div>
+
+<p>Next, we determine whether or not to place grass based on the grass noise function. Actually the
+information above is false, since trees are technically made up of six tiles if you include the very
+tops of their branches. Similarly to how we decide to include the braches above, we use tiles 6 and
+7 if there is a tree below.</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>               <span class="o">|</span> <span class="n">noise1</span> <span class="o">&gt;</span> <span class="mf">0.6</span> <span class="o">=</span> <span class="mi">2</span>
+               <span class="o">|</span> <span class="n">tidBelow</span> <span class="o">==</span> <span class="mi">4</span> <span class="o">=</span> <span class="mi">6</span>
+               <span class="o">|</span> <span class="n">tidBelow</span> <span class="o">==</span> <span class="mi">5</span> <span class="o">=</span> <span class="mi">7</span>
+               <span class="o">|</span> <span class="n">otherwise</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="kr">in</span>  <span class="n">id</span>
+</code></pre></div></div>
+
+<p>We have three layers in our map, <code class="highlighter-rouge">default</code> is the background, <code class="highlighter-rouge">overlay</code> is the foreground, and
+<code class="highlighter-rouge">blocked</code> is the collision layer. First, we create a 100x100 array and fill it with tiles using
+<code class="highlighter-rouge">getTile</code> (actually sequences).  We define a simple function <code class="highlighter-rouge">collision</code> which just checks if a tile
+is a tree tile or not, as players should free to walk through grass. We use this function to create
+the collision layer, which is composed of just 0’s and 1’s.</p>
+
+<p>The foreground contains the tiles that appear in front of the player. A -1 means no tile. The
+foreground spritesheet has tiles starting from 41. The overlay function translates background tiles to
+their related tiles in the foreground spritesheet. Here, when we see 2, we translate that to 0 and
+add the 41 offset.</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>      <span class="n">collision</span> <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="p">`</span><span class="n">elem</span><span class="p">`</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">17</span><span class="p">]</span>
+
+      <span class="n">tiles</span> <span class="o">=</span> <span class="kt">S</span><span class="o">.</span><span class="n">fromList</span> <span class="p">[</span> <span class="kt">S</span><span class="o">.</span><span class="n">fromList</span> <span class="p">[</span><span class="n">getTile</span> <span class="n">x</span> <span class="n">y</span> <span class="o">|</span> <span class="n">x</span> <span class="o">&lt;-</span> <span class="n">coords</span><span class="p">]</span> <span class="o">|</span> <span class="n">y</span> <span class="o">&lt;-</span> <span class="n">coords</span> <span class="p">]</span>
+      <span class="n">blocked</span> <span class="o">=</span> <span class="p">(</span><span class="n">fmap</span> <span class="o">.</span> <span class="n">fmap</span><span class="p">)</span> <span class="p">(</span><span class="nf">\</span><span class="n">x</span> <span class="o">-&gt;</span> <span class="kr">if</span> <span class="n">collision</span> <span class="n">x</span> <span class="kr">then</span> <span class="mi">1</span> <span class="kr">else</span> <span class="mi">0</span><span class="p">)</span>
+      <span class="n">overlay</span> <span class="o">=</span> <span class="p">(</span><span class="n">fmap</span> <span class="o">.</span> <span class="n">fmap</span><span class="p">)</span> <span class="p">(</span><span class="nf">\</span><span class="n">x</span> <span class="o">-&gt;</span> <span class="n">maybe</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">(</span><span class="mi">41</span><span class="o">+</span><span class="p">)</span> <span class="o">$</span> <span class="kt">L</span><span class="o">.</span><span class="n">elemIndex</span> <span class="n">x</span> <span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+      
+      <span class="n">l1</span> <span class="o">=</span> <span class="kt">Layer</span> <span class="p">{</span><span class="n">name</span> <span class="o">=</span> <span class="s">"default"</span><span class="p">,</span> <span class="n">tiles</span> <span class="o">=</span> <span class="n">tiles</span><span class="p">}</span>
+      <span class="n">l2</span> <span class="o">=</span> <span class="kt">Layer</span> <span class="p">{</span><span class="n">name</span> <span class="o">=</span> <span class="s">"blocked"</span><span class="p">,</span> <span class="n">tiles</span> <span class="o">=</span> <span class="n">blocked</span> <span class="n">tiles</span><span class="p">}</span>
+      <span class="n">l3</span> <span class="o">=</span> <span class="kt">Layer</span> <span class="p">{</span><span class="n">name</span> <span class="o">=</span> <span class="s">"overlay"</span><span class="p">,</span> <span class="n">tiles</span> <span class="o">=</span> <span class="n">overlay</span> <span class="n">tiles</span><span class="p">}</span>
+  <span class="kr">in</span> <span class="p">[</span><span class="n">l1</span><span class="p">,</span> <span class="n">l2</span><span class="p">,</span> <span class="n">l3</span><span class="p">]</span>
+</code></pre></div></div>
+
+<p>And this is the result. The player we’ll get to later, but he illustrates the foreground versus
+background (half his body is hidden behind the leaf).</p>
+
+<p><img src="/images/vedicmath-map1.png" alt="output1" /></p>
+
+<p>Now, we can finally get to the algorithm we found earlier. Let’s start with some helper functions.
+<code class="highlighter-rouge">walkable</code> is an extension of <code class="highlighter-rouge">collision</code> that also avoids grass (and other future tiles that
+we haven’t used yet). <code class="highlighter-rouge">bounds</code> takes and Int <code class="highlighter-rouge">b</code> and a point, and makes sure that the point is
+within a square of size <code class="highlighter-rouge">b</code>. <code class="highlighter-rouge">@@</code> is just an operator we define to lookup a location in a layer.</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>      <span class="n">walkable</span>  <span class="n">x</span> <span class="o">=</span> <span class="n">not</span> <span class="p">(</span><span class="n">collision</span> <span class="n">x</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">not</span> <span class="p">(</span><span class="n">x</span> <span class="p">`</span><span class="n">elem</span><span class="p">`</span> <span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+      <span class="n">bounds</span> <span class="n">b</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span> <span class="o">=</span> <span class="n">x</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="n">b</span> <span class="o">&amp;&amp;</span> <span class="n">y</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">y</span> <span class="o">&lt;</span> <span class="n">b</span>
+      <span class="p">(</span><span class="o">@@</span><span class="p">)</span> <span class="n">m</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span> <span class="o">=</span> <span class="n">flip</span> <span class="kt">S</span><span class="o">.</span><span class="n">index</span> <span class="n">y</span> <span class="o">$</span> <span class="kt">S</span><span class="o">.</span><span class="n">index</span> <span class="n">m</span> <span class="n">x</span>
+</code></pre></div></div>
+
+<p>We’ll define a function <code class="highlighter-rouge">findPath</code> that takes a layer of the map, a finishing point, and a
+path–which we will initially fill with the starting point. It will either return a <code class="highlighter-rouge">Nothing</code> if
+there is no path to be found, or <code class="highlighter-rouge">Just</code> a list a points that make up the path.</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>      
+      <span class="n">findPath</span> <span class="o">::</span> <span class="p">(</span><span class="kt">S</span><span class="o">.</span><span class="kt">Seq</span> <span class="p">(</span><span class="kt">S</span><span class="o">.</span><span class="kt">Seq</span> <span class="kt">Int</span><span class="p">))</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="kt">Int</span><span class="p">,</span> <span class="kt">Int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">[(</span><span class="kt">Int</span><span class="p">,</span> <span class="kt">Int</span><span class="p">)]</span> <span class="o">-&gt;</span> <span class="kt">Maybe</span> <span class="p">[(</span><span class="kt">Int</span><span class="p">,</span> <span class="kt">Int</span><span class="p">)]</span>
+      <span class="n">findPath</span> <span class="n">ts</span> <span class="p">(</span><span class="n">fx</span><span class="p">,</span> <span class="n">fy</span><span class="p">)</span> <span class="n">ps</span> <span class="o">=</span> 
+        <span class="kr">let</span> <span class="p">(</span><span class="n">sx</span><span class="p">,</span> <span class="n">sy</span><span class="p">)</span> <span class="o">=</span> <span class="n">last</span> <span class="n">ps</span>
+</code></pre></div></div>
+
+<p>Now to create a list of steps to extend the current path. We’ll start with all the combinations of
+<code class="highlighter-rouge">[-1,0,1]</code>. First, we filter out <code class="highlighter-rouge">(0,0)</code>. Then, we filter out any possible steps that violate the
+bounds of the map. Next, we cross out any steps that walk onto grass. And finally, we make sure that
+we aren’t stepping into part of the path that we already have.</p>
+
+<p><em>Note, this is written as a depth first search instead of breadth first like suggested. Also, we
+desperately need to randomize <code class="highlighter-rouge">ds</code>, but it’s quite hard to do in pure way in haskell (without the <code class="highlighter-rouge">IO</code>
+monad). I’m thinking of using some pseudo-random function to shuffle it.</em></p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>            <span class="n">ds</span> <span class="o">=</span> <span class="p">[(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span> <span class="o">|</span> <span class="n">x</span> <span class="o">&lt;-</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">y</span> <span class="o">&lt;-</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span>
+                  <span class="n">not</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">y</span> <span class="o">==</span> <span class="mi">0</span><span class="p">),</span>
+                  <span class="n">bounds</span> <span class="mi">100</span> <span class="p">(</span><span class="n">sx</span><span class="o">+</span><span class="n">x</span><span class="p">,</span> <span class="n">sy</span><span class="o">+</span><span class="n">y</span><span class="p">),</span>
+                  <span class="n">walkable</span> <span class="p">(</span><span class="n">ts</span> <span class="o">@@</span> <span class="p">(</span><span class="n">sx</span><span class="o">+</span><span class="n">x</span><span class="p">,</span> <span class="n">sy</span><span class="o">+</span><span class="n">y</span><span class="p">)),</span>
+                  <span class="n">not</span> <span class="p">((</span><span class="n">sx</span><span class="o">+</span><span class="n">x</span><span class="p">,</span><span class="n">sy</span><span class="o">+</span><span class="n">y</span><span class="p">)</span> <span class="p">`</span><span class="n">elem</span><span class="p">`</span> <span class="n">ps</span><span class="p">)]</span>
+</code></pre></div></div>
+
+<p>If one of the steps we’ve found is the finishing point, then add it to the path and return,
+otherwise, recurse on the rest of possible paths that we just generated. From the <code class="highlighter-rouge">Maybe</code> library,
+<code class="highlighter-rouge">catMaybes</code> takes a list of <code class="highlighter-rouge">maybe</code> values, and filters out all the <code class="highlighter-rouge">Nothing</code>’s. <code class="highlighter-rouge">listToMaybe</code> takes
+a list and returns the first <code class="highlighter-rouge">Just</code> value or a <code class="highlighter-rouge">Nothing</code> if the list is empty.</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>        <span class="kr">in</span>  <span class="kr">if</span> <span class="p">(</span><span class="n">fx</span><span class="p">,</span><span class="n">fy</span><span class="p">)</span> <span class="p">`</span><span class="n">elem</span><span class="p">`</span> <span class="n">ds</span>
+                <span class="kr">then</span> <span class="kt">Just</span> <span class="o">$</span> <span class="p">(</span><span class="n">fx</span><span class="p">,</span><span class="n">fy</span><span class="p">)</span><span class="o">:</span><span class="n">ps</span>
+                <span class="kr">else</span> <span class="n">listToMaybe</span> <span class="o">$</span> <span class="n">catMaybes</span> <span class="o">$</span> <span class="n">map</span> <span class="p">(</span><span class="nf">\</span><span class="n">n</span> <span class="o">-&gt;</span> <span class="n">findPath</span> <span class="n">ts</span> <span class="p">(</span><span class="n">fx</span><span class="p">,</span> <span class="n">fy</span><span class="p">)</span> <span class="n">n</span><span class="o">:</span><span class="n">ps</span><span class="p">)</span> <span class="n">ds</span>
+
+</code></pre></div></div>
+
+<p>Now to actually add the path. We need to find two points in the map to create a path between. For
+the starting point, we choose the first point along the top of the map–walking left to right–that
+satisfies <code class="highlighter-rouge">walkable</code>, and similarily for the finishing point but walking in the opposite direction.</p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>      <span class="n">addPath</span> <span class="o">::</span> <span class="p">(</span><span class="kt">S</span><span class="o">.</span><span class="kt">Seq</span> <span class="p">(</span><span class="kt">S</span><span class="o">.</span><span class="kt">Seq</span> <span class="kt">Int</span><span class="p">))</span> <span class="o">-&gt;</span> <span class="p">[(</span><span class="kt">Int</span><span class="p">,</span> <span class="kt">Int</span><span class="p">)]</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="kt">S</span><span class="o">.</span><span class="kt">Seq</span> <span class="p">(</span><span class="kt">S</span><span class="o">.</span><span class="kt">Seq</span> <span class="kt">Int</span><span class="p">))</span>
+      <span class="n">addPath</span> <span class="n">ts</span> <span class="n">excl</span> <span class="o">=</span>
+        <span class="kr">let</span> <span class="n">sp</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">head</span> <span class="o">$</span> <span class="n">filter</span> <span class="n">f</span> <span class="n">coords</span><span class="p">)</span> <span class="kr">where</span>
+                  <span class="n">f</span> <span class="n">x</span> <span class="o">=</span> <span class="n">not</span> <span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="p">`</span><span class="n">elem</span><span class="p">`</span> <span class="n">excl</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="n">walkable</span> <span class="o">$</span> <span class="n">ts</span> <span class="o">@@</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+            <span class="n">fp</span> <span class="o">=</span> <span class="p">(</span><span class="n">head</span> <span class="o">$</span> <span class="n">filter</span> <span class="n">f</span> <span class="o">$</span> <span class="n">reverse</span> <span class="n">coords</span><span class="p">,</span> <span class="mi">99</span><span class="p">)</span> <span class="kr">where</span>
+                  <span class="n">f</span> <span class="n">x</span> <span class="o">=</span> <span class="n">not</span> <span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="mi">99</span><span class="p">)</span> <span class="p">`</span><span class="n">elem</span><span class="p">`</span> <span class="n">excl</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="n">walkable</span> <span class="o">$</span> <span class="n">ts</span> <span class="o">@@</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">99</span><span class="p">))</span>
+</code></pre></div></div>
+
+<p>As you can see, we also take in a list of points called <code class="highlighter-rouge">excl</code>. If the starting and finishing points
+that we choose don’t have a valid path between them, perhaps because they are surrounded by trees,
+we have to try different starting or ending points. We first try excluding the starting point and
+start the process over, then toss out the finishing point as well. When we do find a path, we
+iterate over all tiles in the layer and replace the path with tile <code class="highlighter-rouge">21</code>.</p>
+
+<p><em>Note: This isn’t perfect and we should actually try all finishing points with a starting point
+before excluding it. Also, if we can’t find any paths at all, we need to recreate the map. To be
+implemented later.</em></p>
+
+<div class="language-haskell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>            <span class="n">repl</span> <span class="n">x</span> <span class="n">y</span> <span class="n">path</span> <span class="o">=</span> <span class="kr">if</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span> <span class="p">`</span><span class="n">elem</span><span class="p">`</span> <span class="n">path</span> <span class="kr">then</span> <span class="mi">21</span> <span class="kr">else</span> <span class="p">(</span><span class="n">ts</span> <span class="o">@@</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">))</span>
+        <span class="kr">in</span>  <span class="kr">case</span> <span class="n">findPath</span> <span class="n">ts</span> <span class="n">fp</span> <span class="p">[</span><span class="n">sp</span><span class="p">]</span> <span class="kr">of</span>
+              <span class="kt">Just</span> <span class="n">p</span> <span class="o">-&gt;</span> <span class="kt">S</span><span class="o">.</span><span class="n">fromList</span> <span class="p">[</span> <span class="kt">S</span><span class="o">.</span><span class="n">fromList</span> <span class="p">[</span><span class="n">repl</span> <span class="n">x</span> <span class="n">y</span> <span class="n">p</span> <span class="o">|</span> <span class="n">x</span> <span class="o">&lt;-</span> <span class="n">coords</span><span class="p">]</span> <span class="o">|</span> <span class="n">y</span> <span class="o">&lt;-</span> <span class="n">coords</span> <span class="p">]</span>
+              <span class="kt">Nothing</span> <span class="o">-&gt;</span> <span class="n">addPath</span> <span class="n">ts</span> <span class="o">$</span> <span class="p">(</span><span class="kr">if</span> <span class="n">sp</span> <span class="p">`</span><span class="n">elem</span><span class="p">`</span> <span class="n">excl</span> <span class="kr">then</span> <span class="n">fp</span> <span class="kr">else</span> <span class="n">sp</span><span class="p">)</span><span class="o">:</span><span class="n">excl</span>
+
+      <span class="n">tiles'</span> <span class="o">=</span> <span class="n">addPath</span> <span class="n">tiles</span> <span class="kt">[]</span>
+</code></pre></div></div>
+
+<h3 id="npcs">NPC’s</h3>
+
+<p>explain NPCs.</p>
+
+<p><img src="/images/vedicmath-map2.png" alt="output1" /></p>
+
+<h3 id="dialogue">Dialogue</h3>
+
+<p>TODO</p>
+
+<p><img src="/images/vedicmath-test.gif" alt="output1" /></p>
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-51069589-8', 'auto');
+    ga('send', 'pageview');
+  </script>
+</body>
+</html>
