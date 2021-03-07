@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+
+[[ -z "$1" ]] && echo "no args" && exit 1
+
+n="$1"; shift
+d="$HOME/drive/notes/write/devlogs/`date +%Y-%m-%d`-${n}"
+
+mkdir "$d"
+asciinema rec "${d}/${n}.json" \
+  --overwrite
