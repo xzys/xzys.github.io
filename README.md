@@ -2,7 +2,8 @@ Portfolio Site
 --------------
 
 [todos](ol.txt)
-[drafts](drafts.md)
+[draft ideas](drafts.md)
+[devlogs](src/_devlogs)
 
 # Installation
 

@@ -8,12 +8,24 @@ build: build-uptime build-portfolio
 
 # ~syncing to bitbucket pages~ no custom domain support
 # syncing to github pages [branch main]
-sync:
+sync-portfolio:
 	set -e; BUILDDIR=$${TMPDIR}portfolio-www-`date '+%s'`; \
 	git worktree add $$BUILDDIR main; \
 	rsync -a --delete --exclude '.git*' www/ 										 $$BUILDDIR/; \
 	rsync -a --delete --exclude '.git*' ext/uptime-status/build/ $$BUILDDIR/uptime/; \
 	cp CNAME $$BUILDDIR/; \
+	cd $$BUILDDIR; \
+	git acp "`git-generate-commit-message`"; \
+	cd -; \
+	git worktree remove $$BUILDDIR --force
+
+
+# github pages doesn't have CORS support, so using bb for uptime
+# syncing to bb-pages [branch bb-pages]
+sync-uptime:
+	set -e; BUILDDIR=$${TMPDIR}uptime-www-`date '+%s'`; \
+	git worktree add $$BUILDDIR bb-pages; \
+	rsync -a --delete --exclude '.git*' ext/uptime-status/build/ $$BUILDDIR/; \
 	cd $$BUILDDIR; \
 	git acp "`git-generate-commit-message`"; \
 	cd -; \
