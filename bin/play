@@ -9,18 +9,30 @@ usage() {
 }
 
 cleanup() {
-  rm $tf
-  rm $tf.script
+  rm $tf 2>/dev/null
+  rm $tf.script 2>/dev/null
 }
 
 trap cleanup EXIT
 
-[ -z "$1" ] && usage
+[[ -z "$1" ]] && usage
 
-name=$1
-speed=8
-bname="`basename $1`"
-shift
+bin_dir="`basename $0 | xargs which | xargs readlink | xargs dirname`"
+
+name=$1; shift
+# function to test name
+__test_name='compgen -G "$name"* > /dev/null'
+
+# try different options for parsing name
+[[ "$name" == "today" ]] && \
+    name="${bin_dir}/../src/_devlogs/`date +%Y-%m-%d`"
+if ! eval $__test_name; then
+    name="${bin_dir}/../src/_devlogs/${name}"
+fi
+
+if ! eval $__test_name; then
+    echo "no directories found" && usage
+fi
 
 for d in $name*; do
   [[ ! -d "$d" ]] && continue
@@ -29,24 +41,10 @@ for d in $name*; do
     tf=`mktemp`
 
     # slide to show for a few seconds before playing script
-    cat <<EOF > $tf.script
+    title_text="`basename ${f%.json} | head -c -8 | tr '-' ' '`"
+    $bin_dir/title "$title_text"
 
-  `echo ${f%.json} | xargs basename | cut -c12- | tr '-' ' '`
-
-EOF
-
-    # vim script to read out the name of the file
-    # wait for 5 seconds and then exit
-    cat <<EOF > $tf
-:Goyo
-:read $tf.script
-G
-:sleep 5000m
-:q!
-EOF
-
-    vim -s $tf
     # setting timeout, so any waits get skipped
-    asciinema play -i 2 -s $speed $f
+    asciinema play -i 2 $f $@
   done
 done

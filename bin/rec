@@ -5,6 +5,9 @@
 n="$1"; shift
 d="$HOME/drive/notes/write/devlogs/`date +%Y-%m-%d`-${n}"
 
+m="$1"; shift
+[[ -z "$m" ]] && m=`date +%H%M%S`
+
 mkdir "$d"
-asciinema rec "${d}/${n}.json" \
+asciinema rec "${d}/${n}-${m}.json" \
   --overwrite
