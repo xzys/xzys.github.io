@@ -27,7 +27,7 @@ __test_name='compgen -G "$name"* > /dev/null'
 [[ "$name" == "today" ]] && \
     name="${bin_dir}/../src/_devlogs/`date +%Y-%m-%d`"
 if ! eval $__test_name; then
-    name="${bin_dir}/../src/_devlogs/${name}"
+    name="${bin_dir}/../src/_devlogs/*${name}"
 fi
 
 if ! eval $__test_name; then
@@ -41,7 +41,7 @@ for d in $name*; do
     tf=`mktemp`
 
     # slide to show for a few seconds before playing script
-    title_text="`basename ${f%.json} | head -c -8 | tr '-' ' '`"
+    title_text="`basename ${f%.json} | sed -e 's/-[1-9]\+//g' | sed -e 's/[-_]/ /g'`"
     $bin_dir/title "$title_text"
 
     # setting timeout, so any waits get skipped
