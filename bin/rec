@@ -9,5 +9,5 @@ m="$1"; shift
 [[ -z "$m" ]] && m=`date +%H%M%S`
 
 mkdir "$d"
-asciinema rec "${d}/${n}-${m}.json" \
+asciinema rec -i 2 --title "${n}: ${m}" "${d}/${n}-${m}.json" \
   --overwrite
