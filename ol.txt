@@ -1,0 +1,2 @@
++portfolio
+  fix logo on hover while opening

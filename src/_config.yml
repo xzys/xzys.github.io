@@ -1,0 +1,24 @@
+title: /home/sachin/www
+email: sachin.rudraraju{dot}gmail.com
+description: > # this means to ignore newlines until "baseurl:"
+  Sachin's homepage
+baseurl: "" # the subpath of your site, e.g. /blog
+url: "sachin.rudraraju.xyz" # the base hostname & protocol for your site, e.g. http://example.com
+twitter_username: jekyllrb
+github_username:  jekyll
+
+collections:
+  devlogs:
+    output: true
+    permalink: /devlogs/:title
+  projects:
+    output: true
+    permalink: /projects/:title
+
+markdown: kramdown
+theme: minima
+plugins:
+  - jekyll-feed
+exclude:
+  - Gemfile
+  - Gemfile.lock

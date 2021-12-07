@@ -1,0 +1,6 @@
+[submodule "ext/uptime-status"]
+	path = ext/uptime-status
+	url = git@bitbucket.org:sachinrudr/uptime-status.git
+[submodule "ext/uhtceare.co"]
+	path = ext/uhtceare.co
+	url = git@bitbucket.org:sachinrudr/uhtcreare.co

@@ -1,0 +1,26 @@
+---
+layout: default
+---
+
+<div class="post projects devlogs">
+  <div class="navlabel label">
+    <a href="/home">home</a>
+    <a href="/projects">projects</a>
+    <a href="/gallery">gallery</a>
+    <a href="/devlogs" class="active">devlogs</a>
+  </div>
+  <div class="inner">
+    <ol>
+      {% assign sorted = site.devlogs | sort 'num' %}
+      {% for page in sorted %}
+        <li>
+          <a class="project" href="/devlogs/{{ page.slug }}">
+            <div class="title">{{ page.title }}</div>
+            <p class="desc">{{ page.desc }}</p>
+            <div class="date">{{ page.date | date: '%B %d, %Y' }}</div>
+          </a>
+        </li>
+      {% endfor %}
+    </ol>
+  </div>
+</div>
