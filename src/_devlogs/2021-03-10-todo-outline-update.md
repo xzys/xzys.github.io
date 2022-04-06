@@ -2,7 +2,7 @@
 layout: post
 title: todo.txt outline 03/2021 UPDATE
 desc: An extension to todo.txt for outlines
-num: 8
+num: 7
 ---
 
 [todo.txt](https://github.com/todotxt/todo.txt) is a way of organizing your tasks by plain text files.

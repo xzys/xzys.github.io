@@ -1,2 +1,4 @@
 +portfolio
   fix logo on hover while opening
+  
+  images to Blackblaze B2 and Cloudflare CDN

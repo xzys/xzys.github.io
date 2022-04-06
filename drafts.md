@@ -5,3 +5,4 @@ Possible Projects
 - drone build log
 - ESP32 plant monitor
 - origami tooling
+- collecting bookmarks

@@ -1,8 +1,8 @@
 ---
 layout: post
 title: origami tooling
-desc:
-num: 6
+desc: Exploring options for visualizing origami
+num: 5
 ---
 
 # Introduction
@@ -12,8 +12,6 @@ Ideally we will be able to create animations of origami _diagrams_.
 The simulator by @amandaghassaei looks really nice, but it's not very useful for
 origami beginners. Diagrams are much easier to follow along and can be consumed
 by a wider audience.
-
-
 
 # Previous Works
 
