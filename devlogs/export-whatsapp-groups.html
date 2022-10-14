@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>/home/sachin/www</title>
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/formatting.css">
+  <link href="https://fonts.googleapis.com/css?family=Inconsolata|Source+Sans+Pro:200,300,400" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <div class="post">
+      <div class="navlabel label">
+        <a href="/home">home</a>
+        <a href="/projects">projects</a>
+        <a href="/gallery">gallery</a>
+        <a href="/devlogs" class="active">devlogs</a>
+      </div>
+      <div class="inner">
+        <div class="label">exporting whatsapp groups</div>
+        <hr>
+        <div class="content">
+          <h1 id="problem">Problem</h1>
+
+<p>Recently, I had the need to get the contact information for everyone in one of my Whatsapp groups.
+I tried to use the inbuilt <em>export chat</em> feature, but found that it doesn’t give you contacts.
+There is a <a href="https://gist.github.com/shaneapen/3406477b9f946855d02e3f33ec121975">script</a> I found that promises to do the task, but it also seems to fail.
+It seems like Whatsapp used to keep phone numbers somewhere in the HTML document when opening the modal showing the group’s members, but no longer does.
+Now you have to navigate to each person in the group, open their contact page, then click on their name to open a sidebar that has their phone number.</p>
+
+<h1 id="solution">Solution</h1>
+
+<p>Tsk, tsk, Facebook, for trying to keep your users’ data hostage.
+While time consuming for us to do, since it’s a simple sequence of user actions, we can automate it using our own javascript.
+We can collect the contact of every group member and make a proper CSV export.</p>
+
+<h2 id="preamble">Preamble</h2>
+
+<p>First, let’s lay out some convenience functions to select tags on the DOM.
+The first two, <code class="highlighter-rouge">document.querySelector</code> and <code class="highlighter-rouge">document.querySelectorAll</code> should be familiar, they select DOM elements based on CSS path.
+The last one, <code class="highlighter-rouge">document.evaluate</code> is a way to evaluate <em>XPath</em> queries, which lets us do things that we couldn’t with just CSS paths, like selecting a tag based on it’s text content, as used here.</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">select</span> <span class="o">=</span> <span class="p">(</span><span class="nx">s</span><span class="p">,</span> <span class="nx">doc</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">(</span><span class="nx">doc</span> <span class="p">?</span> <span class="nx">doc</span> <span class="p">:</span> <span class="nb">document</span><span class="p">).</span><span class="nx">querySelector</span><span class="p">(</span><span class="nx">s</span><span class="p">);</span>
+<span class="nx">selectAll</span> <span class="o">=</span> <span class="p">(</span><span class="nx">s</span><span class="p">,</span> <span class="nx">doc</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nb">Array</span><span class="p">.</span><span class="k">from</span><span class="p">((</span><span class="nx">doc</span> <span class="p">?</span> <span class="nx">doc</span> <span class="p">:</span> <span class="nb">document</span><span class="p">).</span><span class="nx">querySelectorAll</span><span class="p">(</span><span class="nx">s</span><span class="p">));</span>
+<span class="nx">getTagByText</span> <span class="o">=</span> <span class="p">(</span><span class="nx">tag</span><span class="p">,</span> <span class="nx">text</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nb">document</span><span class="p">.</span><span class="nx">evaluate</span><span class="p">(</span><span class="s2">`//</span><span class="p">${</span><span class="nx">tag</span><span class="p">}</span><span class="s2">[contains(text(),'</span><span class="p">${</span><span class="nx">text</span><span class="p">}</span><span class="s2">')]`</span><span class="p">,</span> <span class="nb">document</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="nx">XPathResult</span><span class="p">.</span><span class="nx">FIRST_ORDERED_NODE_TYPE</span><span class="p">,</span> <span class="kc">null</span><span class="p">).</span><span class="nx">singleNodeValue</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>When clicking on DOM elements, it takes time for the page to interpret the click and load the UI.
+To get around this, we can use this function <code class="highlighter-rouge">waitFor</code>, which retries a function until it gets a truthy response, using progressively longer sleep timeouts in between.</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">sleep</span> <span class="o">=</span> <span class="nx">ms</span> <span class="o">=&gt;</span> <span class="k">new</span> <span class="nb">Promise</span><span class="p">((</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nx">setTimeout</span><span class="p">(</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">ms</span><span class="p">));</span>
+<span class="nx">waitFor</span> <span class="o">=</span> <span class="p">(</span><span class="nx">f</span><span class="p">,</span> <span class="nx">args</span> <span class="o">=</span> <span class="p">[],</span> <span class="nx">retries</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="k">new</span> <span class="nb">Promise</span><span class="p">((</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="kd">let</span> <span class="nx">res</span> <span class="o">=</span> <span class="nx">f</span><span class="p">(...</span><span class="nx">args</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">res</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">resolve</span><span class="p">(</span><span class="nx">res</span><span class="p">);</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">retries</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">resolve</span><span class="p">(</span><span class="nx">sleep</span><span class="p">(</span><span class="mi">2000</span> <span class="o">/</span> <span class="nx">retries</span><span class="p">).</span><span class="nx">then</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="nx">waitFor</span><span class="p">(</span><span class="nx">f</span><span class="p">,</span> <span class="nx">args</span><span class="p">,</span> <span class="nx">retries</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)));</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="nx">reject</span><span class="p">(</span><span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s2">`Failed to get: </span><span class="p">${</span><span class="nx">f</span><span class="p">.</span><span class="nx">name</span><span class="p">}</span><span class="s2">(</span><span class="p">${</span><span class="nx">args</span><span class="p">}</span><span class="s2">)`</span><span class="p">));</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div></div>
+
+<p>We define some common variables and a function to add a new contact to a <code class="highlighter-rouge">contacts</code> array.</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">index</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="nx">numMembers</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
+<span class="nx">groupName</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
+<span class="nx">el</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
+<span class="nx">contacts</span> <span class="o">=</span> <span class="p">[];</span>
+
+<span class="nx">addContact</span> <span class="o">=</span> <span class="p">(</span><span class="nx">name</span><span class="p">,</span> <span class="nx">number</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="nx">contacts</span><span class="p">.</span><span class="nx">push</span><span class="p">({</span><span class="nx">name</span><span class="p">,</span> <span class="nx">number</span><span class="p">});</span>
+  <span class="kd">let</span> <span class="nx">last</span> <span class="o">=</span> <span class="nx">contacts</span><span class="p">[</span><span class="nx">contacts</span><span class="p">.</span><span class="nx">length</span> <span class="o">-</span> <span class="mi">1</span><span class="p">];</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">`(</span><span class="p">${</span><span class="nx">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">}</span><span class="s2">/</span><span class="p">${</span><span class="nx">numMembers</span><span class="p">}</span><span class="s2">) </span><span class="p">${</span><span class="nx">last</span><span class="p">.</span><span class="nx">name</span><span class="p">}</span><span class="s2">: </span><span class="p">${</span><span class="nx">last</span><span class="p">.</span><span class="nx">number</span><span class="p">}</span><span class="s2">`</span><span class="p">);</span>
+  <span class="c1">// increment the index for next time</span>
+  <span class="nx">index</span><span class="o">++</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="simulate-user-actions">Simulate User Actions</h2>
+
+<p>Now the main content.
+This function will go through the sequences of actions to get the contact info for a single group member.
+We utilize <code class="highlighter-rouge">await/async</code> to make each step asynchronous.
+There are some special blocks that are only run on the first run to pick up information about the group.</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">getNextContact</span> <span class="o">=</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="nx">sleep</span><span class="p">(</span><span class="mi">0</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="k">async</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// on first iteration, pick up group name</span>
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">index</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">groupName</span> <span class="o">=</span> <span class="nx">select</span><span class="p">(</span><span class="s1">'div[data-testid="conversation-panel-wrapper"] header div:nth-child(2) span'</span><span class="p">).</span><span class="nx">title</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="c1">// click on group name in header</span>
+  <span class="p">(</span><span class="kr">await</span> <span class="nx">waitFor</span><span class="p">(</span><span class="nx">select</span><span class="p">,</span> <span class="p">[</span><span class="s1">'div[data-testid="conversation-panel-wrapper"] header div:nth-child(2)'</span><span class="p">])).</span><span class="nx">click</span><span class="p">();</span>
+
+  <span class="c1">// on first iteration, get numMembers</span>
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">index</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">el</span> <span class="o">=</span> <span class="kr">await</span> <span class="nx">waitFor</span><span class="p">(</span><span class="nx">select</span><span class="p">,</span> <span class="p">[</span><span class="s1">'div[data-testid="drawer-right"] section&gt;div:nth-child(1)&gt;div:nth-child(1)&gt;div:nth-child(3)&gt;span button'</span><span class="p">]);</span>
+    <span class="nx">numMembers</span> <span class="o">=</span> <span class="nb">parseInt</span><span class="p">(</span><span class="nx">el</span><span class="p">.</span><span class="nx">textContent</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s1">' '</span><span class="p">)[</span><span class="mi">0</span><span class="p">]);</span>
+  <span class="p">}</span>
+
+  <span class="c1">// click 'View all &lt;...&gt;' to open modal</span>
+  <span class="p">(</span><span class="kr">await</span> <span class="nx">waitFor</span><span class="p">(</span><span class="nx">getTagByText</span><span class="p">,</span> <span class="p">[</span><span class="s1">'div'</span><span class="p">,</span> <span class="s1">'View all'</span><span class="p">])).</span><span class="nx">click</span><span class="p">();</span>
+</code></pre></div></div>
+
+<p>How to iterate over all group members?
+We have to open the members panel to view the entire list, but scraping it is not so simple.
+This is because it’s implemented as an <em>infinite list</em>, and only 20 or so items are shown on the page.</p>
+
+<p>We trick the page into showing us the entire list by finding the correct <code class="highlighter-rouge">div</code> that the list is using as it’s container, and artificially set the height to a crazy high value.
+Then we wait until all the users are loaded in the modal.</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1">// resize the modal to load all the users into divs</span>
+  <span class="c1">// getting past the infinite list</span>
+  <span class="nx">el</span> <span class="o">=</span> <span class="kr">await</span> <span class="nx">waitFor</span><span class="p">(</span><span class="nx">select</span><span class="p">,</span> <span class="p">[</span><span class="s1">'div[data-animate-modal-body] div'</span><span class="p">]);</span>
+  <span class="nx">el</span><span class="p">.</span><span class="nx">style</span><span class="p">.</span><span class="nx">height</span> <span class="o">=</span> <span class="s1">'50000px'</span><span class="p">;</span>
+
+  <span class="c1">// get all members in the group, wait until all are loaded</span>
+  <span class="kd">let</span> <span class="nx">members</span> <span class="o">=</span> <span class="kr">await</span> <span class="nx">waitFor</span><span class="p">(</span>
+    <span class="nx">p</span> <span class="o">=&gt;</span> <span class="nx">selectAll</span><span class="p">(</span><span class="nx">p</span><span class="p">).</span><span class="nx">length</span> <span class="o">==</span> <span class="nx">numMembers</span> <span class="p">?</span> <span class="nx">selectAll</span><span class="p">(</span><span class="nx">p</span><span class="p">)</span> <span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+    <span class="p">[</span><span class="s1">'div[data-animate-modal-body] div.zoWT4'</span><span class="p">]);</span>
+</code></pre></div></div>
+
+<p>If the user is not a known contact, their number and sometimes their name is already given in the list.
+We can save some time and collect those without going to their contact page.</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="kd">let</span> <span class="nx">name</span> <span class="o">=</span> <span class="nx">members</span><span class="p">[</span><span class="nx">index</span><span class="p">].</span><span class="nx">outerText</span><span class="p">;</span>
+  <span class="c1">// if not a known contact, get number and move on</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">name</span> <span class="o">==</span> <span class="s1">'You'</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">index</span><span class="o">++</span><span class="p">;</span>
+    <span class="k">return</span> <span class="nx">getNextContact</span><span class="p">();</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">name</span><span class="p">.</span><span class="nx">startsWith</span><span class="p">(</span><span class="s1">'+'</span><span class="p">))</span> <span class="p">{</span>
+    <span class="k">while</span> <span class="p">(</span><span class="nx">name</span><span class="p">.</span><span class="nx">startsWith</span><span class="p">(</span><span class="s1">'+'</span><span class="p">))</span> <span class="p">{</span>
+      <span class="kd">let</span> <span class="nx">children</span> <span class="o">=</span> <span class="nx">members</span><span class="p">[</span><span class="nx">index</span><span class="p">].</span><span class="nx">parentElement</span><span class="p">.</span><span class="nx">parentElement</span><span class="p">.</span><span class="nx">childNodes</span><span class="p">;</span>
+      <span class="nx">addContact</span><span class="p">(</span><span class="nx">select</span><span class="p">(</span><span class="s1">'div:nth-child(2)'</span><span class="p">,</span> <span class="nx">children</span><span class="p">[</span><span class="mi">1</span><span class="p">]).</span><span class="nx">outerText</span><span class="p">,</span> <span class="nx">name</span><span class="p">);</span>
+      <span class="nx">name</span> <span class="o">=</span> <span class="nx">members</span><span class="p">[</span><span class="nx">index</span><span class="p">].</span><span class="nx">outerText</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nx">getNextContact</span><span class="p">();</span>
+  <span class="p">}</span>
+</code></pre></div></div>
+
+<p>For known contacts, open their contact page, get their information, and return to the group page by clicking the group name in the list of common groups.
+This is needed because trying to programmatically click on the groups in the left sidebar doesn’t work for some reason.</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="c1">// open context menu for user</span>
+  <span class="nx">el</span> <span class="o">=</span> <span class="p">(</span><span class="kr">await</span> <span class="nx">waitFor</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="p">(</span>
+    <span class="nx">getTagByText</span><span class="p">(</span><span class="s1">'div'</span><span class="p">,</span> <span class="s1">'Message '</span><span class="p">)</span> <span class="o">||</span> 
+    <span class="p">(</span><span class="nx">members</span><span class="p">[</span><span class="nx">index</span><span class="p">].</span><span class="nx">parentElement</span><span class="p">?.</span><span class="nx">parentElement</span><span class="p">?.</span><span class="nx">parentElement</span><span class="p">).</span><span class="nx">click</span><span class="p">())));</span>
+
+  <span class="c1">// open chat with user</span>
+  <span class="nx">el</span><span class="p">.</span><span class="nx">click</span><span class="p">()</span>
+
+  <span class="c1">// open info for user</span>
+  <span class="kd">let</span> <span class="nx">sec</span> <span class="o">=</span> <span class="kr">await</span> <span class="nx">waitFor</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="p">(</span>
+    <span class="nx">select</span><span class="p">(</span><span class="s1">'div[data-testid="contact-info-drawer"] section'</span><span class="p">)</span> <span class="o">||</span>
+    <span class="nx">select</span><span class="p">(</span><span class="s1">'div[data-testid="conversation-panel-wrapper"] header&gt;div:nth-child(1)'</span><span class="p">).</span><span class="nx">click</span><span class="p">()));</span>
+
+  <span class="c1">// get name and phone number</span>
+  <span class="kd">let</span> <span class="nx">el1</span> <span class="o">=</span> <span class="kr">await</span> <span class="nx">waitFor</span><span class="p">(</span><span class="nx">select</span><span class="p">,</span> <span class="p">[</span><span class="s1">':scope &gt;div:nth-child(1)&gt;div:nth-child(2)&gt;h2:nth-child(1)'</span><span class="p">,</span> <span class="nx">sec</span><span class="p">]);</span>
+  <span class="kd">let</span> <span class="nx">el2</span> <span class="o">=</span> <span class="kr">await</span> <span class="nx">waitFor</span><span class="p">(</span><span class="nx">select</span><span class="p">,</span> <span class="p">[</span><span class="s1">':scope &gt;div:nth-child(1)&gt;div:nth-child(2)&gt;div:nth-child(2)'</span><span class="p">,</span> <span class="nx">sec</span><span class="p">]);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">el1</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// business accounts</span>
+    <span class="nx">el1</span> <span class="o">=</span> <span class="nx">select</span><span class="p">(</span><span class="s1">':scope &gt;div:nth-child(1)&gt;div:nth-child(3)&gt;div:nth-child(1)&gt;div:nth-child(1)'</span><span class="p">,</span> <span class="nx">sec</span><span class="p">);</span>
+    <span class="nx">el2</span> <span class="o">=</span> <span class="nx">select</span><span class="p">(</span><span class="s1">':scope &gt;div:nth-child(1)&gt;div:nth-child(3)&gt;div:nth-child(1)&gt;div:nth-child(2)'</span><span class="p">,</span> <span class="nx">sec</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="nx">el2</span> <span class="o">&amp;&amp;</span> <span class="nx">el2</span><span class="p">.</span><span class="nx">outerText</span><span class="p">.</span><span class="nx">startsWith</span><span class="p">(</span><span class="s1">'~'</span><span class="p">))</span> <span class="p">{</span>
+    <span class="nx">addContact</span><span class="p">(</span><span class="nx">el2</span><span class="p">.</span><span class="nx">outerText</span><span class="p">,</span> <span class="nx">el1</span><span class="p">.</span><span class="nx">outerText</span><span class="p">);</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">el2</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">addContact</span><span class="p">(</span><span class="nx">el1</span><span class="p">.</span><span class="nx">outerText</span><span class="p">,</span> <span class="nx">el2</span><span class="p">.</span><span class="nx">outerText</span><span class="p">);</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="nx">addContact</span><span class="p">(</span><span class="s1">''</span><span class="p">,</span> <span class="nx">el1</span><span class="p">.</span><span class="nx">outerText</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="c1">// find group in list of common groups, and click it</span>
+  <span class="nx">el</span> <span class="o">=</span> <span class="kr">await</span> <span class="nx">waitFor</span><span class="p">(</span><span class="nx">select</span><span class="p">,</span> <span class="p">[</span><span class="s2">`div[data-testid="contact-info-drawer"] section div[data-testid="cell-frame-container"] .zoWT4&gt;span[title="</span><span class="p">${</span><span class="nx">groupName</span><span class="p">}</span><span class="s2">"]`</span><span class="p">])</span>
+  <span class="nx">el</span><span class="p">.</span><span class="nx">parentElement</span><span class="p">.</span><span class="nx">parentElement</span><span class="p">.</span><span class="nx">parentElement</span><span class="p">.</span><span class="nx">parentElement</span><span class="p">.</span><span class="nx">click</span><span class="p">();</span>
+</code></pre></div></div>
+
+<p>Once we get to the end, we simply call the function again until we exhaust all the group members.</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="k">async</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">index</span> <span class="o">&lt;=</span> <span class="nx">numMembers</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">getNextContact</span><span class="p">();</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="nx">downloadContacts</span><span class="p">();</span>
+    <span class="k">return</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}).</span><span class="k">catch</span><span class="p">(</span><span class="nx">err</span> <span class="o">=&gt;</span> <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="nx">err</span><span class="p">));</span>
+</code></pre></div></div>
+
+<h2 id="export-csv">Export CSV</h2>
+
+<p>Finally, here is the function to create a CSV from the <code class="highlighter-rouge">contacts</code> array and download it.</p>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">downloadContacts</span> <span class="o">=</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="kd">let</span> <span class="nx">fn</span> <span class="o">=</span> <span class="s2">`</span><span class="p">${</span><span class="nx">groupName</span><span class="p">}</span><span class="s2">.csv`</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">`Downloading </span><span class="p">${</span><span class="nx">fn</span><span class="p">}</span><span class="s2">`</span><span class="p">);</span>
+
+  <span class="kd">var</span> <span class="nx">csv</span> <span class="o">=</span> <span class="s1">'Name, Number</span><span class="err">\</span><span class="s1">n'</span><span class="p">;</span>  
+  <span class="nx">contacts</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">c</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">csv</span> <span class="o">+=</span> <span class="s2">`</span><span class="p">${</span><span class="nx">c</span><span class="p">.</span><span class="nx">name</span><span class="p">}</span><span class="s2">, </span><span class="p">${</span><span class="nx">c</span><span class="p">.</span><span class="nx">number</span><span class="p">}</span><span class="s2">\n`</span>
+  <span class="p">});</span>
+
+  <span class="kd">var</span> <span class="nx">hiddenElement</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s1">'a'</span><span class="p">);</span>
+  <span class="nx">hiddenElement</span><span class="p">.</span><span class="nx">href</span> <span class="o">=</span> <span class="s1">'data:text/csv;charset=utf-8,'</span> <span class="o">+</span> <span class="nb">encodeURI</span><span class="p">(</span><span class="nx">csv</span><span class="p">);</span>
+  <span class="nx">hiddenElement</span><span class="p">.</span><span class="nx">target</span> <span class="o">=</span> <span class="s1">'_blank'</span><span class="p">;</span>
+  <span class="nx">hiddenElement</span><span class="p">.</span><span class="nx">download</span> <span class="o">=</span> <span class="nx">fn</span><span class="p">;</span>
+  <span class="nx">hiddenElement</span><span class="p">.</span><span class="nx">click</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

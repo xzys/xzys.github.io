@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>/home/sachin/www</title>
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/formatting.css">
+  <link href="https://fonts.googleapis.com/css?family=Inconsolata|Source+Sans+Pro:200,300,400" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <div class="post">
+      <div class="navlabel label">
+        <a href="/home">home</a>
+        <a href="/projects">projects</a>
+        <a href="/gallery">gallery</a>
+        <a href="/devlogs" class="active">devlogs</a>
+      </div>
+      <div class="inner">
+        <div class="label">the collector</div>
+        <hr>
+        <div class="content">
+          <h1 id="introduction">Introduction</h1>
+
+<p>Collecting HTML files to build a knowledge base.</p>
+
+<h2 id="sources">Sources</h2>
+
+<h3 id="third-party-sources">Third-Party Sources</h3>
+
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />firefox bookmarks</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />pocket links</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />hacker news likes</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />reddit upvotes</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />feedly saved links</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />youtube likes</li>
+</ul>
+
+<p>These are all third party services that we want integrations for.
+We want to bring data from each of these sources into our main feed, so that:</p>
+<ul>
+  <li>we can apply filters to these feeds and take actions on the posts</li>
+  <li>we can consume these feeds in a common way</li>
+  <li>if we save the same article in reddit and hacker new, we dont want it to come
+up twice</li>
+</ul>
+
+<h3 id="firefox-bookmarks">Firefox bookmarks</h3>
+
+<p>Firefox is a cross-device browser and has sync built in.  For most use cases we
+are interested in, we either have firefox open (on desktop) or handy via share
+menu (mobile).</p>
+
+<p>We can hook into Firefox sync and retrive our bookmarks.</p>
+
+<h3 id="web-extension-singlefile">Web Extension: Singlefile</h3>
+
+<p>This extension saves the current page as a single HTML file, with assets already
+packed in. HTML files are a commonly accepted standard, and additionally, some
+bookmarks are from sites we are logged into.  By downloading the assets and the
+page as it’s currently rendered, we can save content that would otherwise be
+hidden behind authentication.</p>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

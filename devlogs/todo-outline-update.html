@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>/home/sachin/www</title>
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/formatting.css">
+  <link href="https://fonts.googleapis.com/css?family=Inconsolata|Source+Sans+Pro:200,300,400" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <div class="post">
+      <div class="navlabel label">
+        <a href="/home">home</a>
+        <a href="/projects">projects</a>
+        <a href="/gallery">gallery</a>
+        <a href="/devlogs" class="active">devlogs</a>
+      </div>
+      <div class="inner">
+        <div class="label">todo.txt outline</div>
+        <hr>
+        <div class="content">
+          <h1 id="background">Background</h1>
+
+<p><a href="https://github.com/todotxt/todo.txt">todo.txt</a> is a way of organizing your tasks by plain text files.</p>
+
+<p><a href="https://github.com/todotxt/todo.txt-cli">todo.sh</a> is a way to manage such files from the command line.</p>
+
+<h1 id="introduction">Introduction</h1>
+
+<p><code class="highlighter-rouge">outline</code> is a extension to the <code class="highlighter-rouge">todo.sh</code> tool that converts outlines into the
+<code class="highlighter-rouge">todo.txt</code> format, using indents to imply either dependency or inheritance
+relationships.</p>
+
+<p>For example, it converts this (sample.ol.txt):</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(A)
+  +project.whales
+    write report on whales
+      research phase
+        reserve books about whales at the library
+        read book 1
+        read book 2
+
+      complete analysis
+        find data on whale migration patterns
+        import data into computer
+        do the magic
+
+      write up findings
+
+@buy
+  (B)
+    game console
+    cables
+    controller
+
+  (C)
+    television
+</code></pre></div></div>
+
+<p>into this (sample.todo.txt):</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(A) +project.whales reserve books about whales at the library; research phase; write report on whales
+(B) @buy game console
+(B) @buy cables
+(B) @buy controller
+(C) @buy television
+</code></pre></div></div>
+
+<p>Notice that tasks that are children of projects/contexts/priorities or a
+combination of them inherit them.
+Alternatively, tasks that are children of other tasks make them dependent.
+In this case, the task ‘read book 1’ won’t show up in the todo file until the
+‘reserve books…’ task is complete, and tasks under ‘complete analysis…’
+won’t show up until all the research phase tasks are done.</p>
+
+<p>This extends <code class="highlighter-rouge">todo.sh</code> to serve as an organizing tool for task breakdowns or
+project management.</p>
+
+<h1 id="updates">Updates</h1>
+
+<p>A few additions have been made to the format of <code class="highlighter-rouge">*.ol.txt</code> files over time.</p>
+
+<ol>
+  <li>
+    <p>First is the divider: <code class="highlighter-rouge">---</code>.
+Anything after the divider in an <code class="highlighter-rouge">*.ol.txt</code> file will be ignored.
+This is space for notes and a scratchpad for the outline.</p>
+  </li>
+  <li>
+    <p>Done tasks get collected into the global <code class="highlighter-rouge">done.txt</code> file in your <code class="highlighter-rouge">todo</code>
+repository.</p>
+  </li>
+  <li>
+    <p>Tasks now show their parenst in addition to themselves. This is to get around
+the issue of multiple tasks that may have the same ‘raw’ text.
+Take this outline file for example.</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Chemistry Essentials
+   chapter 1-3 @read due:2029-02-20
+   chapter 4-6 @read due:2029-03-05
+
+Mathematics for adults
+   chapter 1-3 @read due:2029-02-20
+   chapter 4-6 @read due:2029-03-05
+</code></pre></div>    </div>
+
+    <p>In this case, the tasks from the second book would marked as duplicates.
+Instead, we store each task as follows, which ensures that each task has
+unique raw text. It also gives some context to the task.</p>
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>task text; &lt;parent task text&gt;; ... @&lt;contexts&gt;... +&lt;projects&gt;...
+</code></pre></div>    </div>
+    <p>The information overload is a slight issue, but I find that I read the
+beginning and ending of lines more closely that the middles, so it’s not much
+of a problem.</p>
+  </li>
+</ol>
+
+<h2 id="properly-deleting-tasks">Properly Deleting Tasks</h2>
+
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" checked="checked" />when finishing tasks, if the task is archived before <code class="highlighter-rouge">outline</code> is run
+    again, we are adding it back to the <code class="highlighter-rouge">*.todo.txt</code> file. This can be worked
+    around for the time being by completing and removing tasks from both the
+    <code class="highlighter-rouge">todo</code> file and the <code class="highlighter-rouge">ol</code> file at once.</li>
+</ul>
+
+<p>Let us work on fixing this issue.  So what do we need to do? Whenever we
+complete a task, if there is an outline file (<code class="highlighter-rouge">*.ol.txt</code>) for the todo file we
+are editing, we need to propagate the change to the outline file.</p>
+
+<p>Most, if not all of the time when working with outlines, we are not working on
+our main todo file <code class="highlighter-rouge">todo.txt</code> but some other subject specific file, like
+<code class="highlighter-rouge">learn.todo.txt</code>. To complete tasks in these files, we already have a custom
+command <code class="highlighter-rouge">df</code>, that works like the default command <code class="highlighter-rouge">do</code>, but takes an additional
+argument for the file to act on. So for example, if we want to complete task
+number $4$ in <code class="highlighter-rouge">learn.todo.txt</code>, we can run <code class="highlighter-rouge">t df learn 4</code>.</p>
+
+<p>Thankfully, we have already stubbed out where we need to call into our <code class="highlighter-rouge">outline</code>
+script. We will make a new subcommand called <code class="highlighter-rouge">__df</code> that we can hook into. It
+will accept similar arguments as <code class="highlighter-rouge">df</code>, so borrowing from the previous example,
+running <code class="highlighter-rouge">t df learn 4</code> will call <code class="highlighter-rouge">t outline __df learn.ol.txt 4</code>.</p>
+
+<p><code class="highlighter-rouge">outline</code> works by keeping all the tasks in a local SQLite database. This is the
+source of truth that we use to keep tasks in sync between outline files and text
+files. So, the first thing we need to do is look up the task. One of the
+invariants we rely on is that all tasks have a unique <code class="highlighter-rouge">raw</code> text. This is the
+text of the task with all projects, contexts, due dates, etc. stripped away.</p>
+
+<p>Once we’ve parsed out the <code class="highlighter-rouge">raw</code> text, we can set <code class="highlighter-rouge">completed = True</code> and sync
+this task to the db. This is straigtforward since we already have a function
+<code class="highlighter-rouge">sync_task</code> that takes care of most of the details. We simply parse the line in
+of the todo file that we are interested in, and <code class="highlighter-rouge">sync_task</code> will look the task
+by it’s <code class="highlighter-rouge">raw</code> text, and update the <code class="highlighter-rouge">completed</code> status.</p>
+
+<p>Next, we need to sync the change to the outline file. We find the line in the
+outline that that has the matching <code class="highlighter-rouge">raw</code> text and mark it as complete. After
+flushing out some bugs, it seems like everything is working now.</p>
+
+<h1 id="reference">Reference</h1>
+
+<ul>
+  <li><strong>Repository</strong>: <a href="https://bitbucket.org/sachinrudr/todo.actions.d/src">bitbucket</a></li>
+  <li><strong>Stack</strong>: GraphQL, SQLite, python, graphene (python)</li>
+</ul>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

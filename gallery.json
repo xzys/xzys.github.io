@@ -1,0 +1,38 @@
+{
+  "logos": [
+    { "file": "xyz.png",             "desc" : "Logo for XYZ Programming" },
+    { "file": "karisma.jpg",         "desc" : "Logo for Karisma" }
+  ],
+  "design": [
+    { "file": "tradehouse.jpg",      "desc" : "Website redesign for Tradehouse.as" }
+  ],
+  "photography" : [
+    {"file" : "DSC_0013.jpg", "desc" : "" },
+    {"file" : "DSC_0065.jpg", "desc" : "" },
+    {"file" : "DSC_0153.jpg", "desc" : "" },
+    {"file" : "DSC_0165.jpg", "desc" : "" },
+    {"file" : "DSC_0255.jpg", "desc" : "" },
+    {"file" : "DSC_0259.jpg", "desc" : "" },
+
+    {"file" : "DSC_0166.jpg", "desc" : "" },
+    {"file" : "DSC_0195.jpg", "desc" : "" },
+    {"file" : "DSC_0233.jpg", "desc" : "" },
+    {"file" : "DSC_0248.jpg", "desc" : "" },
+    {"file" : "DSC_0263.jpg", "desc" : "" },
+    {"file" : "DSC_0290.jpg", "desc" : "" },
+    {"file" : "DSC_0308.jpg", "desc" : "" },
+    {"file" : "DSC_0426.jpg", "desc" : "" },
+    {"file" : "DSC_0582.jpg", "desc" : "" },
+    {"file" : "DSC_0593.jpg", "desc" : "" },
+    {"file" : "DSC_0597.jpg", "desc" : "" },
+    {"file" : "DSC_0652.jpg", "desc" : "" },
+    {"file" : "DSC_0675.jpg", "desc" : "" },
+    {"file" : "DSC_0690.jpg", "desc" : "" },
+    {"file" : "DSC_0700.jpg", "desc" : "" },
+    {"file" : "DSC_0734.jpg", "desc" : "" },
+    {"file" : "DSC_0743.png", "desc" : "" },
+    {"file" : "DSC_0811.jpg", "desc" : "" },
+    {"file" : "DSC_0823.jpg", "desc" : "" },
+    {"file" : "DSC_0867.jpg", "desc" : "" }
+  ]
+}

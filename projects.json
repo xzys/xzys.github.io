@@ -1,0 +1,63 @@
+[
+  {
+    "link":  "https://securiti.ai/privaci/",
+    "title": "securiti.ai",
+    "pos":   "Software Engineer",
+    "desc":  "PRIVACI, an AI-powered 'PrivacyOps' platform for Data Governance and Compliance for global privacy regulations."
+  },
+  {
+    "link":  "/projects/threatseq",
+    "title": "threatseq",
+    "pos":   "Lead Architect/Developer",
+    "desc":  "ThreatSEQ is a biosecurity tool for the Gene Synthesis industry to screen orders for threatening sequences."
+  },
+  {
+    "link":  "/projects/stash",
+    "title": "stash.ai",
+    "pos":   "Chief Product Officer",
+    "desc":  "Stash is an intelligent, cross-device bookmarking tool that uses machine learning to automatically analyze and organize links that you save."
+  },
+  {
+    "link":  "",
+    "title": "inxite health",
+    "pos":   "Contract Work",
+    "desc":  "Built an internal tool to assist in mapping chinese heathcare databases to one another using statistical heuristics and machine learning."
+  },
+  {
+    "link":  "",
+    "title": "cultural quotient",
+    "pos":   "Project Lead",
+    "desc":  "Built a web application and API for GRIN, a lossy compression scheme for bathymetry and other geospatial data."
+  },
+  {
+    "link":  "",
+    "title": "mochilla adventures",
+    "pos":   "Technical Lead",
+    "desc":  "A travel company to encourage young travelers and help them share their stories and experiences."
+  },
+  {
+    "link":  "https://www.facebook.com/karismanyc",
+    "title": "karisma",
+    "pos":   "Design/Technical Chair",
+    "desc":  "Karisma is an annual student-run non-profit charity arts showcase in NYC that raises money to support education in the Himalayan region. Designed logo and website."
+  },
+  {
+    "link":  "http://imdb.com/name/nm7319218/",
+    "title": "invisible the film",
+    "pos":   "Volunteer",
+    "desc":  "A documentary about living with chronic illness. Created an interactive webpage to highlight actors' stories."
+  },
+  {
+    "link":  "",
+    "title": "iphemap",
+    "pos":   "Contract Work",
+    "desc":  "iPhemap is a searchable database of neuronal disease phenotypes from induced pluripotent stem cells. Created for Dr. Jaime Imitola at the Ohio State Neurological Institute."
+  },
+  {
+    "link":  "https://www.epa.gov/education/presidents-environmental-youth-award-peya-winners",
+    "title": "community recycling campaign",
+    "pos":   "Founder",
+    "desc":  "Founded a 501(c) public charity to refurbish and donate used computers. Recognized by the President's Environmental Youth Award and as a TIE International Student Innovator."
+  }
+]
+
