@@ -1,0 +1,15 @@
+#!/usr/bin/env sh
+
+DEVLOGS_DIR=drive/collab/ASC/devlogs/
+
+[[ -z "$1" ]] && echo "no args" && exit 1
+
+n="$1"; shift
+d="$HOME/$DEVLOGS_DIR/`date +%Y-%m-%d`-${n}"
+
+m="$1"; shift
+[[ -z "$m" ]] && m=`date +%H%M%S`
+
+mkdir "$d"
+asciinema rec -i 2 --title "${n}: ${m}" "${d}/${n}-${m}.json" \
+  --overwrite

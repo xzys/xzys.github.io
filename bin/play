@@ -1,0 +1,50 @@
+#!/usr/bin/env sh
+# this is a script to play a couple of recording as a slide deck
+# before each recording we load vim and show the name of the recording for a
+# few seconds.
+
+usage() {
+  echo "`echo $0 | xargs basename`: <directories to play from>"
+  exit 1
+}
+
+cleanup() {
+  rm $tf 2>/dev/null
+  rm $tf.script 2>/dev/null
+}
+
+trap cleanup EXIT
+
+[[ -z "$1" ]] && usage
+
+bin_dir="`basename $0 | xargs which | xargs readlink | xargs dirname`"
+
+name=$1; shift
+# function to test name
+__test_name='compgen -G "$name"* > /dev/null'
+
+# try different options for parsing name
+[[ "$name" == "today" ]] && \
+    name="${bin_dir}/../src/_devlogs/`date +%Y-%m-%d`"
+if ! eval $__test_name; then
+    name="${bin_dir}/../src/_devlogs/*${name}"
+fi
+
+if ! eval $__test_name; then
+    echo "no directories found" && usage
+fi
+
+for d in $name*; do
+  [[ ! -d "$d" ]] && continue
+
+  for f in $d/*.json; do
+    tf=`mktemp`
+
+    # slide to show for a few seconds before playing script
+    title_text="`basename ${f%.json} | sed -e 's/-[1-9]\+//g' | sed -e 's/[-_]/ /g'`"
+    $bin_dir/title "$title_text"
+
+    # setting timeout, so any waits get skipped
+    asciinema play -i 2 $f $@
+  done
+done

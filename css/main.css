@@ -1,5 +1,5 @@
 @import url(/css/syntax_highlighting.css);
-body { padding: 2em; position: fixed; top: 0; left: 0; margin: 0; transition: background 200ms; background: #202025; color: white; width: calc(100% - 4em); height: calc(100% - 4em); overflow: hidden; font-weight: 400; font-family: "Source Sans Pro", monospace; letter-spacing: 0.05em; }
+body { padding: 2em; position: fixed; top: 0; left: 0; margin: 0; transition: background 200ms; background: #111111; color: white; width: calc(100% - 4em); height: calc(100% - 4em); overflow: hidden; font-weight: 400; font-family: "Source Sans Pro", monospace; letter-spacing: 0.05em; }
 
 pre { font-size: 0.6em; opacity: 0.3; }
 
